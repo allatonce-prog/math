@@ -847,25 +847,35 @@ footer {
 }
 
 .menu-item-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* content left aligned */
     width: 100%;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     margin-bottom: 1rem;
     border: none;
-    border-radius: 15px;
-    font-size: 1.2rem;
-    font-weight: 700;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 800;
     color: white;
-    text-align: left;
-    padding-left: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-    transition: transform 0.1s;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+    min-height: 80px;
+    /* Uniform chunky height */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .menu-item-btn:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-controls .menu-item-btn {
+    /* Make secondary controls slightly smaller if desired, or keep same */
+    min-height: 60px;
+    font-size: 1rem;
 }
 
 .divider {
