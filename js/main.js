@@ -66,34 +66,33 @@ function init() {
     scratchpad = new Scratchpad('stage-wrapper');
     artBoard = new ArtBoard('art-canvas');
 
-    // Sidebar Navigation Logic - Moved inside Init to ensure DOM is ready
+    // Sidebar Navigation Logic
     const menuBtn = document.getElementById('menu-btn');
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
+    // Define closeMenu in init scope
+    const closeMenu = () => {
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.remove('active');
+            setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+            sfx.click();
+        }
+    };
+
     if (menuBtn && sidebarOverlay) {
         menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent bubbling
-            sidebarOverlay.classList.remove('hidden'); // Ensure it's not hidden
-            // Force reflow
+            e.stopPropagation();
+            sidebarOverlay.classList.remove('hidden');
             void sidebarOverlay.offsetWidth;
             sidebarOverlay.classList.add('active');
             sfx.click();
-            console.log('Menu opened');
         });
-
-        const closeMenu = () => {
-            sidebarOverlay.classList.remove('active');
-            setTimeout(() => sidebarOverlay.classList.add('hidden'), 300); // Wait for transition
-            sfx.click();
-        };
 
         if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
         sidebarOverlay.addEventListener('click', (e) => {
             if (e.target === sidebarOverlay) closeMenu();
         });
-    } else {
-        console.error('Menu elements not found!');
     }
 
     // Main Features
