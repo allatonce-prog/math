@@ -127,9 +127,15 @@
                 <button id="close-table-btn" class="tool-btn">🔙 Back</button>
             </div>
 
-            <div class="table-container" style="overflow-x: auto; padding-bottom: 20px;">
-                <div id="times-table-grid" class="times-grid">
-                    <!-- JS will populate this -->
+            <div class="table-layout">
+                <!-- Left: Number Selector -->
+                <div class="table-sidebar" id="table-sidebar">
+                    <!-- JS fills 1-10 buttons -->
+                </div>
+
+                <!-- Right: The List -->
+                <div class="table-view" id="table-view">
+                    <p class="placeholder-text">Tap a number to see its table!</p>
                 </div>
             </div>
         </section>
