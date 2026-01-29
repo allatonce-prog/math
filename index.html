@@ -30,16 +30,36 @@
 <body>
 
     <header>
+        <button id="menu-btn" class="icon-btn" aria-label="Menu"
+            style="margin: 0; margin-right: 15px; font-size: 1.8rem;">🍔</button>
+
         <div class="logo-area">
             <h1>Math Tutor</h1>
         </div>
+
         <div id="star-jar" class="star-display">
             <span class="star-icon">⭐</span>
             <span id="star-count">0</span>
         </div>
-        <button id="music-toggle-btn" class="icon-btn" aria-label="Toggle Music">🎵</button>
-        <button id="install-btn" class="hidden" aria-label="Install App">📲 Install</button>
     </header>
+
+    <!-- Sidebar Menu Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden">
+        <div class="sidebar">
+            <button id="close-menu-btn" class="icon-btn" style="align-self: flex-end; margin-bottom: 2rem;">✖️</button>
+
+            <h3>Menu</h3>
+            <button id="draw-page-btn" class="menu-item-btn" style="background: #e84393;">🎨 Free Draw</button>
+            <button id="surprise-btn" class="menu-item-btn" style="background: #a29bfe;">🎲 Surprise Me!</button>
+
+            <div class="divider"></div>
+
+            <div class="sidebar-controls">
+                <button id="music-toggle-btn" class="menu-item-btn secondary-btn">🎵 Music: Off</button>
+                <button id="install-btn" class="menu-item-btn hidden check-btn">📲 Install App</button>
+            </div>
+        </div>
+    </div>
 
     <main>
         <section id="input-section" class="card">
@@ -71,11 +91,6 @@
                 </div>
             </div>
 
-            <div class="action-buttons">
-                <button id="surprise-btn" class="secondary-btn">🎲 Surprise Me!</button>
-                <button id="draw-page-btn" class="secondary-btn"
-                    style="background: #e84393; box-shadow: 0 6px 0 #d63031;">🎨 Free Draw</button>
-            </div>
             <button id="solve-btn" class="primary-btn">Start 🚀</button>
         </section>
 

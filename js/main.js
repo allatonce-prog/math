@@ -53,6 +53,10 @@ let quizMode = false;
 let scratchpad = null;
 let artBoard = null;
 
+const menuBtn = document.getElementById('menu-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+
 /**
  * Initialize App
  */
@@ -61,17 +65,43 @@ function init() {
     scratchpad = new Scratchpad('stage-wrapper');
     artBoard = new ArtBoard('art-canvas');
 
-    // Main Nav
-    solveBtn.addEventListener('click', handleSolve);
-    surpriseBtn.addEventListener('click', handleSurprise);
-
-    // Drawing Page Navigation
-    drawPageBtn.addEventListener('click', () => {
+    // Sidebar Navigation
+    menuBtn.addEventListener('click', () => {
+        sidebarOverlay.classList.add('active');
         sfx.click();
+    });
+
+    const closeMenu = () => {
+        sidebarOverlay.classList.remove('active');
+        sfx.click();
+    };
+
+    closeMenuBtn.addEventListener('click', closeMenu);
+    sidebarOverlay.addEventListener('click', (e) => {
+        if (e.target === sidebarOverlay) closeMenu();
+    });
+
+    // Main Features
+    solveBtn.addEventListener('click', handleSolve);
+
+    surpriseBtn.addEventListener('click', () => {
+        closeMenu();
+        handleSurprise();
+    });
+
+    drawPageBtn.addEventListener('click', () => {
+        closeMenu();
         inputSection.classList.add('hidden');
         drawingSection.classList.remove('hidden');
-        artBoard.resize(); // Fix size on show
+        artBoard.resize();
         output.speak("Let's draw!");
+    });
+
+    // Music Toggle
+    musicBtn.addEventListener('click', () => {
+        const isPlaying = music.toggle();
+        musicBtn.textContent = isPlaying ? '🎵 Music: On' : '🎵 Music: Off';
+        // musicBtn.ariaLabel = isPlaying ? 'Stop Music' : 'Start Music';
     });
 
     closeDrawBtn.addEventListener('click', () => {
