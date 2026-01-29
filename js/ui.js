@@ -4,8 +4,10 @@
  */
 
 import { sfx } from './audio.js';
+import { output } from './speech.js';
 
 const stage = document.getElementById('step-stage');
+let tapCount = 0;
 
 /**
  * renderStage
@@ -14,9 +16,11 @@ const stage = document.getElementById('step-stage');
 export function renderStage(stepData) {
     if (!stage) return;
     stage.innerHTML = ''; // Clear previous
+    tapCount = 0; // Reset count for new stage
 
     const card = document.createElement('div');
     card.className = 'step-card';
+    card.id = 'current-card'; // Helper for styling
 
     const text = document.createElement('p');
     text.className = 'step-text';
@@ -96,13 +100,44 @@ export function renderQuiz(correctAnswer, onCorrect, onWrong) {
 
 // --- Visual Helpers ---
 
-function createIcon(type) {
+function createIcon(type, isInteractive = true) {
     const div = document.createElement('div');
-    if (type === 'star') {
-        div.className = 'icon-star'; // Use the new CSS class
-    } else {
-        div.className = `icon-sprite icon-${type}`;
+    div.className = type === 'star' ? 'icon-star' : `icon-sprite icon-${type}`;
+
+    // Add interaction
+    if (isInteractive) {
+        div.style.cursor = 'pointer';
+        div.setAttribute('role', 'button');
+        div.setAttribute('aria-label', `Tap to count`);
+
+        div.addEventListener('click', function (e) {
+            e.stopPropagation(); // Prevent bubbling if needed
+
+            // If already counted, maybe just say the number again?
+            if (this.classList.contains('counted')) {
+                const myNum = this.getAttribute('data-count-val');
+                if (myNum) output.speak(myNum);
+                sfx.pop();
+                return;
+            }
+
+            // New count
+            if (this.classList.contains('crossed-out')) {
+                // Don't count subtracted items normally, strictly speaking
+                sfx.pop();
+                return;
+            }
+
+            tapCount++;
+            this.classList.add('counted');
+            this.setAttribute('data-count-val', tapCount); // Save its number
+
+            // Visual bounce is handled by CSS .counted
+            sfx.pop();
+            output.speak(tapCount.toString());
+        });
     }
+
     return div;
 }
 
@@ -121,10 +156,9 @@ function renderGroups(numGroups, itemsPerGroup, iconType) {
 
         for (let j = 0; j < itemsPerGroup; j++) {
             const icon = createIcon(iconType);
-            icon.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
-            // Add pop-in animation
+            // Stagger animation
             icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
-            icon.style.animationDelay = `${(j * 0.1)}s`;
+            icon.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
             groupBox.appendChild(icon);
         }
         wrapper.appendChild(groupBox);
