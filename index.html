@@ -29,8 +29,14 @@
 <body>
 
     <header>
-        <h1>JOHN PAUL SOLAYAO</h1>
-        <button id="install-btn" class="hidden" aria-label="Install App">Install App</button>
+        <div class="logo-area">
+            <h1>Math Tutor</h1>
+        </div>
+        <div id="star-jar" class="star-display">
+            <span class="star-icon">⭐</span>
+            <span id="star-count">0</span>
+        </div>
+        <button id="install-btn" class="hidden" aria-label="Install App">📲 Install</button>
     </header>
 
     <main>
@@ -49,12 +55,20 @@
                 <div class="voice-control">
                     <label for="voice-select">Microphone:</label>
                     <select id="voice-select" aria-label="Choose voice">
-                        <option value="female">👩 Female Voice</option>
                         <option value="male">👨 Male Voice</option>
+                        <option value="female">👩 Female Voice</option>
                     </select>
                 </div>
+
+                <div class="quiz-control">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="quiz-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>❓ Quiz Me First!</span>
+                </div>
             </div>
-            <button id="solve-btn" class="primary-btn">Show Me How</button>
+            <button id="solve-btn" class="primary-btn">Start 🚀</button>
         </section>
 
         <section id="explanation-section" class="hidden">

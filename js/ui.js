@@ -3,6 +3,8 @@
  * Handles DOM manipulation and rendering of visual elements.
  */
 
+import { sfx } from './audio.js';
+
 const stage = document.getElementById('step-stage');
 
 /**
@@ -26,7 +28,6 @@ export function renderStage(stepData) {
         card.appendChild(renderGroups(stepData.groups, stepData.itemsPerGroup, stepData.iconType));
     } else if (stepData.type === 'visual_total' || stepData.type === 'visual_grouping' || stepData.type === 'result_summary') {
         const isGrouping = stepData.type === 'visual_grouping';
-        // Handle undefined groupSize gracefully
         const gSize = stepData.groupSize || 1;
         card.appendChild(renderItems(stepData.total, gSize, isGrouping, stepData.iconType));
     } else if (stepData.type === 'visual_add') {
@@ -35,6 +36,58 @@ export function renderStage(stepData) {
         card.appendChild(renderSubtraction(stepData.total, stepData.taken, stepData.iconType));
     }
 
+    stage.appendChild(card);
+}
+
+/**
+ * renderQuiz
+ * Renders the balloon quiz interface
+ */
+export function renderQuiz(correctAnswer, onCorrect, onWrong) {
+    if (!stage) return;
+    stage.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'step-card';
+
+    const text = document.createElement('p');
+    text.className = 'step-text';
+    text.textContent = "Pop the balloon with the right answer!";
+    card.appendChild(text);
+
+    const balloonContainer = document.createElement('div');
+    balloonContainer.className = 'balloon-container';
+
+    // Generate wrong answers
+    let answers = [correctAnswer];
+    while (answers.length < 3) {
+        let r = Math.max(1, correctAnswer + Math.floor(Math.random() * 10) - 5);
+        if (!answers.includes(r)) answers.push(r);
+    }
+    // Shuffle
+    answers.sort(() => Math.random() - 0.5);
+
+    answers.forEach(ans => {
+        const bal = document.createElement('div');
+        bal.className = 'balloon';
+        bal.textContent = ans;
+        bal.onclick = () => {
+            if (ans === correctAnswer) {
+                sfx.correct();
+                sfx.pop();
+                bal.style.background = '#00b894'; // Green for success
+                bal.textContent = 'Correct!';
+                setTimeout(onCorrect, 1000);
+            } else {
+                sfx.wrong();
+                bal.style.opacity = '0.5';
+                if (onWrong) onWrong();
+            }
+        };
+        balloonContainer.appendChild(bal);
+    });
+
+    card.appendChild(balloonContainer);
     stage.appendChild(card);
 }
 
@@ -66,6 +119,8 @@ function renderGroups(numGroups, itemsPerGroup, iconType) {
             icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
             icon.style.animationDelay = `${(j * 0.1)}s`;
             groupBox.appendChild(icon);
+            // Play simplified pop sound for effect handled by main loop timing mostly, 
+            // but we could try sfx here. Let's keep sfx in main for pacing.
         }
         wrapper.appendChild(groupBox);
     }
@@ -78,8 +133,6 @@ function renderItems(total, groupSize, isGrouping, iconType) {
 
     if (isGrouping) {
         const numGroups = Math.floor(total / groupSize);
-        // We aren't handling remainder visualization fully here for division yet in this new mode, 
-        // but let's stick to the happy path for now or it gets complex.
 
         for (let i = 0; i < numGroups; i++) {
             const groupBox = document.createElement('div');
@@ -158,8 +211,6 @@ function renderSubtraction(total, taken, iconType) {
 
     for (let i = 0; i < total; i++) {
         const icon = createIcon(iconType);
-        // If it's one of the "taken" ones, apply cross-out
-        // We take from the end usually
         if (i >= total - taken) {
             icon.classList.add('crossed-out');
         }
