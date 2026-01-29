@@ -132,77 +132,6 @@ button:active {
 }
 
 .primary-btn {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
-    width: 100%;
-    max-width: 300px;
-    display: block;
-    margin: 0 auto;
-}
-
-.secondary-btn {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Visual Explanations */
-.step-card {
-    background: white;
-    border-left: 5px solid var(--primary-color);
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    border-radius: 4px;
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-.step-text {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
-.visual-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 1rem;
-    background: #fafafa;
-    border-radius: 8px;
-    justify-content: center;
-}
-
-.group-box {
-    border: 2px dashed var(--primary-color);
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    background: #fff;
-    min-width: 60px;
-    min-height: 60px;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.group-label {
-    position: absolute;
-    top: -10px;
-    left: 10px;
-    background: var(--primary-color);
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.counter {
-    width: 32px;
-    height: 32px;
-    background-color: var(--counter-bg);
-    border-radius: 50%;
     border: 2px solid #e1b12c;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -238,6 +167,18 @@ footer {
     }
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 @keyframes popIn {
     from {
         transform: scale(0);
@@ -265,6 +206,7 @@ footer {
         max-width: 100%;
     }
 }
+
 /* Update Notification Toast */
 #update-toast {
     position: fixed;
@@ -274,7 +216,7 @@ footer {
     color: white;
     padding: 1rem;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     gap: 1rem;

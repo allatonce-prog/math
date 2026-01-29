@@ -51,10 +51,20 @@
         </section>
 
         <section id="explanation-section" class="hidden">
-            <div id="narrator-controls">
-                <button id="replay-voice-btn" class="secondary-btn" aria-label="Replay Audio">🔊 Replay</button>
+            <div class="progress-container">
+                <div id="progress-bar"></div>
             </div>
-            <div id="steps-container"></div>
+
+            <div id="step-stage">
+                <!-- Content goes here -->
+            </div>
+
+            <div class="controls-area">
+                <button id="prev-btn" class="nav-btn" disabled>⬅️ Back</button>
+                <button id="replay-voice-btn" class="nav-btn secondary-btn" aria-label="Replay Audio">🔊 Hear
+                    it</button>
+                <button id="next-btn" class="nav-btn primary-btn">Next ➡️</button>
+            </div>
         </section>
     </main>
 

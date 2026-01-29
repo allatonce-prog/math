@@ -12,82 +12,42 @@ const container = document.getElementById('steps-container');
  */
 export function clearSteps() {
     container.innerHTML = '';
-}
+    const stage = document.getElementById('step-stage');
 
-/**
- * createStepCard
- * Creates a visual card for a single step in the explanation sequence.
- * @param {object} stepData - Data for the step (text, type, etc.)
- * @returns {HTMLElement} - The DOM element for the step card
- */
-export function createStepCard(stepData) {
-    const card = document.createElement('div');
-    card.className = 'step-card';
+    /**
+     * renderStage
+     * Renders a single step into the stage
+     */
+    export function renderStage(stepData) {
+        stage.innerHTML = ''; // Clear previous
 
-    const text = document.createElement('p');
-    text.className = 'step-text';
-    text.textContent = stepData.text;
-    card.appendChild(text);
+        const card = document.createElement('div');
+        card.className = 'step-card';
 
-    // Render Visuals based on type
-    if (stepData.type === 'visual_groups') {
-        const visual = renderGroups(stepData.groups, stepData.itemsPerGroup, stepData.icon);
-        card.appendChild(visual);
-    } else if (stepData.type === 'visual_grouping' || stepData.type === 'visual_total') {
-        const visual = renderItems(stepData.total, stepData.groupSize, stepData.type === 'visual_grouping', stepData.icon);
-        card.appendChild(visual);
-    }
-    // 'intro', 'explanation_only', 'result' etc might just show text or reuse previous visual if I was using a meaningful state,
-    // but in this append-only list flow, we simply show the text for others.
+        const text = document.createElement('p');
+        text.className = 'step-text';
+        text.textContent = stepData.text;
+        card.appendChild(text);
 
-    return card;
-}
-
-/**
- * renderGroups
- * Renders A groups of B items for multiplication
- */
-function renderGroups(numGroups, itemsPerGroup, icon = '') {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'visual-container';
-
-    for (let i = 0; i < numGroups; i++) {
-        const groupBox = document.createElement('div');
-        groupBox.className = 'group-box';
-
-        // Label
-        const label = document.createElement('span');
-        label.className = 'group-label';
-        label.textContent = `Group ${i + 1}`;
-        groupBox.appendChild(label);
-
-        // Counters
-        for (let j = 0; j < itemsPerGroup; j++) {
-            const counter = document.createElement('div');
-            counter.className = 'counter';
-            counter.textContent = icon; // Set emoji
-            // Stagger animation slightly
-            counter.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
-            groupBox.appendChild(counter);
+        // Render Visuals based on type
+        if (stepData.type === 'visual_groups') {
+            const visual = renderGroups(stepData.groups, stepData.itemsPerGroup, stepData.icon);
+            card.appendChild(visual);
+        } else if (stepData.type === 'visual_grouping' || stepData.type === 'visual_total') {
+            const visual = renderItems(stepData.total, stepData.groupSize, stepData.type === 'visual_grouping', stepData.icon);
+            card.appendChild(visual);
         }
 
-        wrapper.appendChild(groupBox);
+        stage.appendChild(card);
     }
-    return wrapper;
-}
 
-/**
- * renderItems
- * Renders total items, optionally grouped visually for division
- */
-function renderItems(total, groupSize, isGrouping, icon = '') {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'visual-container';
-
-    if (isGrouping) {
-        // Group them
-        const numGroups = Math.floor(total / groupSize);
-        const remainder = total % groupSize;
+    /**
+     * renderGroups
+     * Renders A groups of B items for multiplication
+     */
+    function renderGroups(numGroups, itemsPerGroup, icon = '') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'visual-container';
 
         for (let i = 0; i < numGroups; i++) {
             const groupBox = document.createElement('div');
@@ -99,61 +59,88 @@ function renderItems(total, groupSize, isGrouping, icon = '') {
             label.textContent = `Group ${i + 1}`;
             groupBox.appendChild(label);
 
-            for (let j = 0; j < groupSize; j++) {
+            // Counters
+            for (let j = 0; j < itemsPerGroup; j++) {
                 const counter = document.createElement('div');
                 counter.className = 'counter';
-                counter.textContent = icon;
+                counter.textContent = icon; // Set emoji
+                // Stagger animation slightly
+                counter.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
                 groupBox.appendChild(counter);
             }
+
             wrapper.appendChild(groupBox);
         }
+        return wrapper;
+    }
 
-        if (remainder > 0) {
-            const remainderBox = document.createElement('div');
-            remainderBox.className = 'group-box';
-            remainderBox.style.borderColor = '#ff6b6b'; // Alert color for remainder
+    /**
+     * renderItems
+     * Renders total items, optionally grouped visually for division
+     */
+    function renderItems(total, groupSize, isGrouping, icon = '') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'visual-container';
 
-            const label = document.createElement('span');
-            label.className = 'group-label';
-            label.style.background = '#ff6b6b';
-            label.textContent = 'Leftover';
-            remainderBox.appendChild(label);
+        if (isGrouping) {
+            // Group them
+            const numGroups = Math.floor(total / groupSize);
+            const remainder = total % groupSize;
 
-            for (let k = 0; k < remainder; k++) {
+            for (let i = 0; i < numGroups; i++) {
+                const groupBox = document.createElement('div');
+                groupBox.className = 'group-box';
+
+                // Label
+                const label = document.createElement('span');
+                label.className = 'group-label';
+                label.textContent = `Group ${i + 1}`;
+                groupBox.appendChild(label);
+
+                for (let j = 0; j < groupSize; j++) {
+                    const counter = document.createElement('div');
+                    counter.className = 'counter';
+                    counter.textContent = icon;
+                    groupBox.appendChild(counter);
+                }
+                wrapper.appendChild(groupBox);
+            }
+
+            if (remainder > 0) {
+                const remainderBox = document.createElement('div');
+                remainderBox.className = 'group-box';
+                remainderBox.style.borderColor = '#ff6b6b'; // Alert color for remainder
+
+                const label = document.createElement('span');
+                label.className = 'group-label';
+                label.style.background = '#ff6b6b';
+                label.textContent = 'Leftover';
+                remainderBox.appendChild(label);
+
+                for (let k = 0; k < remainder; k++) {
+                    const counter = document.createElement('div');
+                    counter.className = 'counter';
+                    counter.textContent = icon;
+                    remainderBox.appendChild(counter);
+                }
+                wrapper.appendChild(remainderBox);
+            }
+
+        } else {
+            // Just show all items loosely
+            const looseBox = document.createElement('div');
+            looseBox.className = 'group-box';
+            looseBox.style.borderStyle = 'none'; // No border for total pile initially
+
+            for (let i = 0; i < total; i++) {
                 const counter = document.createElement('div');
                 counter.className = 'counter';
                 counter.textContent = icon;
-                remainderBox.appendChild(counter);
+                counter.style.animationDelay = `${i * 0.02}s`;
+                looseBox.appendChild(counter);
             }
-            wrapper.appendChild(remainderBox);
+            wrapper.appendChild(looseBox);
         }
 
-    } else {
-        // Just show all items loosely
-        const looseBox = document.createElement('div');
-        looseBox.className = 'group-box';
-        looseBox.style.borderStyle = 'none'; // No border for total pile initially
-
-        for (let i = 0; i < total; i++) {
-            const counter = document.createElement('div');
-            counter.className = 'counter';
-            counter.textContent = icon;
-            counter.style.animationDelay = `${i * 0.02}s`;
-            looseBox.appendChild(counter);
-        }
-        wrapper.appendChild(looseBox);
+        return wrapper;
     }
-
-    return wrapper;
-}
-
-/**
- * appendStep
- * Appends a step card to the container.
- * @param {HTMLElement} cardElement 
- */
-export function appendStep(cardElement) {
-    container.appendChild(cardElement);
-    // Scroll to new element
-    cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}

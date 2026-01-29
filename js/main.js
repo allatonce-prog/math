@@ -1,7 +1,7 @@
 /**
  * main.js
  * App Entry Point.
- * Coordinates interaction between UI, Math Logic, and Speech.
+ * Handles state, navigation, and coordination.
  */
 
 import { generateMultiplicationSteps, generateDivisionSteps } from './mathLogic.js';
@@ -15,12 +15,16 @@ const operationSelect = document.getElementById('operation');
 const solveBtn = document.getElementById('solve-btn');
 const explanationSection = document.getElementById('explanation-section');
 const replayBtn = document.getElementById('replay-voice-btn');
+const nextBtn = document.getElementById('next-btn');
+const prevBtn = document.getElementById('prev-btn');
 const installBtn = document.getElementById('install-btn');
 const voiceSelect = document.getElementById('voice-select');
+const progressBar = document.getElementById('progress-bar');
+const inputSection = document.getElementById('input-section');
 
 // State
 let currentSteps = [];
-let currentStepIndex = 0;
+let currentIndex = 0;
 let deferredPrompt;
 
 /**
@@ -28,17 +32,21 @@ let deferredPrompt;
  */
 function init() {
     solveBtn.addEventListener('click', handleSolve);
-    replayBtn.addEventListener('click', replayNarration);
+    replayBtn.addEventListener('click', () => {
+        const step = currentSteps[currentIndex];
+        output.speak(step.text);
+    });
+
+    nextBtn.addEventListener('click', goNext);
+    prevBtn.addEventListener('click', goPrev);
 
     // Voice Change Listener
     voiceSelect.addEventListener('change', (e) => {
         output.setVoiceGender(e.target.value);
     });
-
-    // Set initial voice
     output.setVoiceGender(voiceSelect.value);
 
-    // PWA Install Prompt handling
+    // PWA Install Prompt
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -49,15 +57,13 @@ function init() {
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            installBtn.classList.add('hidden');
-        }
+        if (outcome === 'accepted') installBtn.classList.add('hidden');
         deferredPrompt = null;
     });
 }
 
 /**
- * Handle Solve Button Click
+ * Start the Learning Session
  */
 function handleSolve() {
     const a = parseInt(numAInput.value);
@@ -69,63 +75,72 @@ function handleSolve() {
         return;
     }
 
-    // Stop any current speech
     output.stop();
 
-    // Generate Logic
+    // Generate Steps
     let data;
-    if (op === 'multiply') {
-        data = generateMultiplicationSteps(a, b);
-    } else {
-        data = generateDivisionSteps(a, b);
-    }
+    if (op === 'multiply') data = generateMultiplicationSteps(a, b);
+    else data = generateDivisionSteps(a, b);
 
     currentSteps = data.steps;
+    currentIndex = 0;
 
-    // Update UI
-    UI.clearSteps();
+    // UI Setup
+    inputSection.classList.add('hidden'); // Hide input to focus
     explanationSection.classList.remove('hidden');
 
-    // Animate Steps sequentially
-    runStepSequence();
+    // Start First Step
+    updateStep();
 }
 
 /**
- * Runs the sequence of steps: Render -> Speak -> Wait -> Next
+ * Updates UI and Speech for the current step
  */
-async function runStepSequence() {
-    for (let i = 0; i < currentSteps.length; i++) {
-        const step = currentSteps[i];
+function updateStep() {
+    const step = currentSteps[currentIndex];
 
-        // 1. Render Visual
-        const card = UI.createStepCard(step);
-        UI.appendStep(card);
+    // 1. Render Visual
+    UI.renderStage(step);
 
-        // 2. Speak (Promise wrapper to wait for speech to finish)
-        await new Promise(resolve => {
-            output.speak(step.text, resolve);
-        });
+    // 2. Update Progress Bar
+    const progress = ((currentIndex + 1) / currentSteps.length) * 100;
+    progressBar.style.width = `${progress}%`;
 
-        // Small pause between steps
-        await new Promise(r => setTimeout(r, 500));
+    // 3. Update Buttons
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.textContent = currentIndex === currentSteps.length - 1 ? 'Finish ✅' : 'Next ➡️';
+
+    // 4. Speak
+    output.stop(); // Stop previous
+    output.speak(step.text);
+}
+
+function goNext() {
+    if (currentIndex < currentSteps.length - 1) {
+        currentIndex++;
+        updateStep();
+    } else {
+        // Finished
+        finishSession();
     }
 }
 
-/**
- * Replays the narration for the current set of steps
- */
-function replayNarration() {
-    output.stop();
-    // Re-read all text sequentially
-    let textQueue = currentSteps.map(s => s.text);
-
-    function speakNext() {
-        if (textQueue.length === 0) return;
-        const text = textQueue.shift();
-        output.speak(text, speakNext);
+function goPrev() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateStep();
     }
-    speakNext();
 }
 
-// Start
+function finishSession() {
+    output.speak("Great job! Let's do another one.");
+    explanationSection.classList.add('hidden');
+    inputSection.classList.remove('hidden');
+    numAInput.value = '';
+    numBInput.value = '';
+
+    // Reset inputs
+    inputSection.scrollIntoView({ behavior: 'smooth' });
+}
+
 init();
