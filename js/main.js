@@ -1,7 +1,6 @@
 /**
  * main.js
- * App Entry Point.
- * Handles state, navigation, gamification, and quiz mode.
+ * Core application logic integrating Voice, UI, Data, and new Gamification/Tools
  */
 
 import { generateMultiplicationSteps, generateDivisionSteps, generateAdditionSteps, generateSubtractionSteps } from './mathLogic.js';
@@ -12,36 +11,50 @@ import { triggerConfetti } from './confetti.js';
 import { Scratchpad } from './scratchpad.js';
 import { ArtBoard } from './artboard.js';
 
-// DOM Elements
+// DOM Elements - Main Inputs
 const numAInput = document.getElementById('num-a');
 const numBInput = document.getElementById('num-b');
 const operationSelect = document.getElementById('operation');
 const solveBtn = document.getElementById('solve-btn');
-const surpriseBtn = document.getElementById('surprise-btn');
-const musicBtn = document.getElementById('music-toggle-btn');
-const drawBtn = document.getElementById('draw-toggle-btn');
-const clearDrawBtn = document.getElementById('clear-draw-btn');
 
-// Drawing Page Elements
-const drawPageBtn = document.getElementById('draw-page-btn');
-const drawingSection = document.getElementById('drawing-section');
-const closeDrawBtn = document.getElementById('close-draw-btn');
-const colorPicker = document.getElementById('color-picker');
-const brushSize = document.getElementById('brush-size');
-const eraserBtn = document.getElementById('eraser-btn');
-const clearBoardBtn = document.getElementById('clear-board-btn');
-
-
+// Sections
+const inputSection = document.getElementById('input-section');
 const explanationSection = document.getElementById('explanation-section');
+const drawingSection = document.getElementById('drawing-section');
+const tableSection = document.getElementById('table-section');
+
+// Navigation & Controls
 const replayBtn = document.getElementById('replay-voice-btn');
 const nextBtn = document.getElementById('next-btn');
 const prevBtn = document.getElementById('prev-btn');
 const installBtn = document.getElementById('install-btn');
 const voiceSelect = document.getElementById('voice-select');
 const progressBar = document.getElementById('progress-bar');
-const inputSection = document.getElementById('input-section');
 const starCountEl = document.getElementById('star-count');
 const quizToggle = document.getElementById('quiz-mode-toggle');
+
+// Menu Controls
+const menuBtn = document.getElementById('menu-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+const drawPageBtn = document.getElementById('draw-page-btn');
+const surpriseBtn = document.getElementById('surprise-btn');
+const tablePageBtn = document.getElementById('table-page-btn');
+const musicBtn = document.getElementById('music-toggle-btn');
+
+// Sub-feature Controls
+const drawBtn = document.getElementById('draw-toggle-btn');
+const clearDrawBtn = document.getElementById('clear-draw-btn');
+const closeDrawBtn = document.getElementById('close-draw-btn');
+const closeTableBtn = document.getElementById('close-table-btn');
+// ArtBoard tools
+const colorPicker = document.getElementById('color-picker');
+const brushSize = document.getElementById('brush-size');
+const eraserBtn = document.getElementById('eraser-btn');
+const clearBoardBtn = document.getElementById('clear-board-btn');
+// Table Tools
+const tableSidebar = document.getElementById('table-sidebar');
+const tableView = document.getElementById('table-view');
 
 // State
 let currentSteps = [];
@@ -52,11 +65,7 @@ let currentResult = 0;
 let quizMode = false;
 let scratchpad = null;
 let artBoard = null;
-
-// Top level variable declarations moved inside init or handled there
-// const menuBtn = document.getElementById('menu-btn');
-// const closeMenuBtn = document.getElementById('close-menu-btn');
-// const sidebarOverlay = document.getElementById('sidebar-overlay');
+let activeTableNum = null;
 
 /**
  * Initialize App
@@ -66,12 +75,19 @@ function init() {
     scratchpad = new Scratchpad('stage-wrapper');
     artBoard = new ArtBoard('art-canvas');
 
-    // Sidebar Navigation Logic
-    const menuBtn = document.getElementById('menu-btn');
-    const closeMenuBtn = document.getElementById('close-menu-btn');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    // --- Sidebar Menu Logic ---
+    // Defined in init so it has access to state if needed, and ensures DOM binding
 
-    // Define closeMenu in init scope
+    const openMenu = (e) => {
+        if (e) e.stopPropagation();
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.remove('hidden');
+            void sidebarOverlay.offsetWidth; // Force reflow
+            sidebarOverlay.classList.add('active');
+            sfx.click();
+        }
+    };
+
     const closeMenu = () => {
         if (sidebarOverlay) {
             sidebarOverlay.classList.remove('active');
@@ -80,92 +96,17 @@ function init() {
         }
     };
 
-    if (menuBtn && sidebarOverlay) {
-        menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebarOverlay.classList.remove('hidden');
-            void sidebarOverlay.offsetWidth;
-            sidebarOverlay.classList.add('active');
-            sfx.click();
-        });
+    if (menuBtn) menuBtn.addEventListener('click', openMenu);
+    if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
 
-        if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+    if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', (e) => {
             if (e.target === sidebarOverlay) closeMenu();
         });
     }
 
-    // Table Elements
-    const tablePageBtn = document.getElementById('table-page-btn');
-    const tableSection = document.getElementById('table-section');
-    const closeTableBtn = document.getElementById('close-table-btn');
-    const tableGrid = document.getElementById('times-table-grid');
+    // --- Main Feature Navigation ---
 
-    // Table Logic
-    const renderTable = () => {
-        tableGrid.innerHTML = '';
-        // Create 11x11 grid (0-10, 0 is header)
-        for (let row = 0; row <= 10; row++) {
-            for (let col = 0; col <= 10; col++) {
-                const cell = document.createElement('div');
-                cell.className = 't-cell';
-
-                if (row === 0 && col === 0) {
-                    cell.textContent = '×';
-                    cell.className += ' t-corner';
-                } else if (row === 0) {
-                    cell.textContent = col;
-                    cell.className += ' t-header';
-                } else if (col === 0) {
-                    cell.textContent = row;
-                    cell.className += ' t-header';
-                } else {
-                    const product = row * col;
-                    cell.textContent = product;
-                    // Interactive Speaking
-                    cell.style.cursor = 'pointer';
-                    // Alternating colors for fun
-                    if ((row + col) % 2 === 0) cell.style.background = '#dfe6e9';
-
-                    cell.onclick = () => {
-                        sfx.pop();
-                        output.speak(`${row} times ${col} is ${product}`);
-                        // Highlight
-                        document.querySelectorAll('.t-cell').forEach(c => c.style.border = 'none');
-                        cell.style.border = '3px solid #6c5ce7';
-                        cell.style.background = '#a29bfe';
-                        cell.style.color = 'white';
-                    };
-                }
-                tableGrid.appendChild(cell);
-            }
-        }
-    };
-
-    // Table Nav events
-    if (tablePageBtn) {
-        tablePageBtn.addEventListener('click', () => {
-            // Close menu manually if function exists, else just UI logic
-            const sidebar = document.getElementById('sidebar-overlay');
-            if (sidebar) { sidebar.classList.remove('active'); setTimeout(() => sidebar.classList.add('hidden'), 300); }
-
-            inputSection.classList.add('hidden');
-            tableSection.classList.remove('hidden');
-            renderTable();
-            output.speak("Multiplication Table!");
-            sfx.click();
-        });
-    }
-
-    if (closeTableBtn) {
-        closeTableBtn.addEventListener('click', () => {
-            sfx.click();
-            tableSection.classList.add('hidden');
-            inputSection.classList.remove('hidden');
-        });
-    }
-
-    // Main Features
     solveBtn.addEventListener('click', handleSolve);
 
     surpriseBtn.addEventListener('click', () => {
@@ -181,11 +122,100 @@ function init() {
         output.speak("Let's draw!");
     });
 
-    // Music Toggle
+    // --- Multiplication Table Logic ---
+
+    const renderTableButtons = () => {
+        if (!tableSidebar) return;
+        tableSidebar.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = 'table-toggle-btn';
+            if (i === activeTableNum) btn.classList.add('active');
+
+            btn.onclick = () => {
+                // Deactivate others
+                document.querySelectorAll('.table-toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeTableNum = i;
+                showTableFor(i);
+                sfx.click();
+            };
+            tableSidebar.appendChild(btn);
+        }
+    };
+
+    const showTableFor = (num) => {
+        if (!tableView) return;
+        tableView.innerHTML = '';
+        // Header
+        const title = document.createElement('h3');
+        title.textContent = `Times ${num}`;
+        title.style.margin = '0 0 10px 0';
+        title.style.color = '#6c5ce7';
+        tableView.appendChild(title);
+
+        for (let i = 1; i <= 10; i++) {
+            const row = document.createElement('div');
+            row.className = 'table-row-item';
+
+            const text = document.createElement('span');
+            text.textContent = `${num} × ${i} = ${num * i}`;
+
+            const icon = document.createElement('span');
+            icon.textContent = '🔊';
+            icon.style.opacity = '0.5';
+
+            row.appendChild(text);
+            row.appendChild(icon);
+
+            row.onclick = () => {
+                output.speak(`${num} times ${i} is ${num * i}`);
+                sfx.pop();
+                row.style.background = '#ffeaa7';
+                setTimeout(() => row.style.background = 'white', 300);
+            };
+
+            // Stagger animation
+            row.style.animation = `popIn 0.3s forwards`;
+            row.style.animationDelay = `${i * 0.05}s`;
+
+            tableView.appendChild(row);
+        }
+    };
+
+    if (tablePageBtn) {
+        tablePageBtn.addEventListener('click', () => {
+            closeMenu();
+            inputSection.classList.add('hidden');
+            tableSection.classList.remove('hidden');
+
+            if (!activeTableNum) {
+                renderTableButtons();
+                // Optional: Select 1 by default?
+                // activeTableNum = 1; showTableFor(1);
+            } else {
+                renderTableButtons();
+                showTableFor(activeTableNum);
+            }
+            output.speak("Multiplication Table!");
+        });
+    }
+
+    if (closeTableBtn) {
+        closeTableBtn.addEventListener('click', () => {
+            sfx.click();
+            tableSection.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+        });
+    }
+
+
+    // --- Other Controls ---
+
     musicBtn.addEventListener('click', () => {
         const isPlaying = music.toggle();
         musicBtn.textContent = isPlaying ? '🎵 Music: On' : '🎵 Music: Off';
-        // musicBtn.ariaLabel = isPlaying ? 'Stop Music' : 'Start Music';
     });
 
     closeDrawBtn.addEventListener('click', () => {
@@ -194,7 +224,7 @@ function init() {
         inputSection.classList.remove('hidden');
     });
 
-    // Drawing Tools
+    // ArtBoard Tools
     colorPicker.addEventListener('input', (e) => artBoard.setColor(e.target.value));
     brushSize.addEventListener('input', (e) => artBoard.setSize(e.target.value));
     eraserBtn.addEventListener('click', () => artBoard.setEraser());
@@ -203,14 +233,7 @@ function init() {
         sfx.pop();
     });
 
-    // Music Toggle
-    musicBtn.addEventListener('click', () => {
-        const isPlaying = music.toggle();
-        musicBtn.textContent = isPlaying ? '🔇' : '🎵';
-        musicBtn.ariaLabel = isPlaying ? 'Stop Music' : 'Start Music';
-    });
-
-    // Draw Tools
+    // Scratchpad Tools (Explanation view)
     drawBtn.addEventListener('click', () => {
         const isActive = scratchpad.toggle();
         drawBtn.classList.toggle('active', isActive);
@@ -227,6 +250,7 @@ function init() {
         sfx.click();
     });
 
+    // Standard Nav
     replayBtn.addEventListener('click', () => {
         const step = currentSteps[currentIndex];
         output.speak(step.text);
@@ -235,13 +259,12 @@ function init() {
     nextBtn.addEventListener('click', () => { sfx.click(); goNext(); });
     prevBtn.addEventListener('click', () => { sfx.click(); goPrev(); });
 
-    // Voice Change Listener
     voiceSelect.addEventListener('change', (e) => {
         output.setVoiceGender(e.target.value);
     });
     output.setVoiceGender(voiceSelect.value);
 
-    // PWA Install Prompt
+    // PWA Install
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
