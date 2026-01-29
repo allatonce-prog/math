@@ -76,19 +76,42 @@ export const output = {
 
         if (selectedVoice) {
             utterance.voice = selectedVoice;
-            console.log(`Speaking with: ${selectedVoice.name}`);
+            // console.log(`Speaking with: ${selectedVoice.name}`);
         }
 
-        utterance.onend = () => { if (onEndCallback) onEndCallback(); };
-        utterance.onerror = (e) => {
-            console.error(e);
+        // Android Safety: Keep a reference to prevent garbage collection
+        window.currentUtterance = utterance;
+
+        let hasFinished = false;
+        const finish = () => {
+            if (hasFinished) return;
+            hasFinished = true;
             if (onEndCallback) onEndCallback();
+            window.currentUtterance = null;
+        };
+
+        utterance.onend = finish;
+        utterance.onerror = (e) => {
+            console.error('TTS Error:', e);
+            finish();
         };
 
         synthesis.speak(utterance);
+
+        // Safety Watchdog: If speech hangs or doesn't start, force finish after timeout
+        const approximateDuration = (text.split(' ').length * 0.5) * 1000 + 2000; // ~0.5s per word + 2s buffer
+        setTimeout(finish, approximateDuration);
     },
 
     stop: () => {
-        if (output.isSupported) synthesis.cancel();
+        if (output.isSupported) {
+            synthesis.cancel();
+            if (window.currentUtterance) window.currentUtterance = null;
+        }
     }
 };
+
+// Android Chrome fix: sometimes voices need a poke
+if (output.isSupported && synthesis.getVoices().length === 0) {
+    setTimeout(loadVoices, 1000);
+}
