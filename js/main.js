@@ -95,6 +95,76 @@ function init() {
         });
     }
 
+    // Table Elements
+    const tablePageBtn = document.getElementById('table-page-btn');
+    const tableSection = document.getElementById('table-section');
+    const closeTableBtn = document.getElementById('close-table-btn');
+    const tableGrid = document.getElementById('times-table-grid');
+
+    // Table Logic
+    const renderTable = () => {
+        tableGrid.innerHTML = '';
+        // Create 11x11 grid (0-10, 0 is header)
+        for (let row = 0; row <= 10; row++) {
+            for (let col = 0; col <= 10; col++) {
+                const cell = document.createElement('div');
+                cell.className = 't-cell';
+
+                if (row === 0 && col === 0) {
+                    cell.textContent = '×';
+                    cell.className += ' t-corner';
+                } else if (row === 0) {
+                    cell.textContent = col;
+                    cell.className += ' t-header';
+                } else if (col === 0) {
+                    cell.textContent = row;
+                    cell.className += ' t-header';
+                } else {
+                    const product = row * col;
+                    cell.textContent = product;
+                    // Interactive Speaking
+                    cell.style.cursor = 'pointer';
+                    // Alternating colors for fun
+                    if ((row + col) % 2 === 0) cell.style.background = '#dfe6e9';
+
+                    cell.onclick = () => {
+                        sfx.pop();
+                        output.speak(`${row} times ${col} is ${product}`);
+                        // Highlight
+                        document.querySelectorAll('.t-cell').forEach(c => c.style.border = 'none');
+                        cell.style.border = '3px solid #6c5ce7';
+                        cell.style.background = '#a29bfe';
+                        cell.style.color = 'white';
+                    };
+                }
+                tableGrid.appendChild(cell);
+            }
+        }
+    };
+
+    // Table Nav events
+    if (tablePageBtn) {
+        tablePageBtn.addEventListener('click', () => {
+            // Close menu manually if function exists, else just UI logic
+            const sidebar = document.getElementById('sidebar-overlay');
+            if (sidebar) { sidebar.classList.remove('active'); setTimeout(() => sidebar.classList.add('hidden'), 300); }
+
+            inputSection.classList.add('hidden');
+            tableSection.classList.remove('hidden');
+            renderTable();
+            output.speak("Multiplication Table!");
+            sfx.click();
+        });
+    }
+
+    if (closeTableBtn) {
+        closeTableBtn.addEventListener('click', () => {
+            sfx.click();
+            tableSection.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+        });
+    }
+
     // Main Features
     solveBtn.addEventListener('click', handleSolve);
 
