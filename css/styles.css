@@ -805,13 +805,21 @@ footer {
     pointer-events: none;
     transition: opacity 0.3s;
     display: flex;
+    /* Always flex, hide with opacity/visibility or separate hidden class */
     justify-content: flex-start;
-    /* Align sidebar to the left */
+    visibility: hidden;
+    /* Added visibility transition */
 }
 
 .sidebar-overlay.active {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+}
+
+/* Ensure global .hidden class overrides this if applied */
+.sidebar-overlay.hidden {
+    display: none !important;
 }
 
 .sidebar {

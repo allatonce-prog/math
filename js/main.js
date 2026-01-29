@@ -53,9 +53,10 @@ let quizMode = false;
 let scratchpad = null;
 let artBoard = null;
 
-const menuBtn = document.getElementById('menu-btn');
-const closeMenuBtn = document.getElementById('close-menu-btn');
-const sidebarOverlay = document.getElementById('sidebar-overlay');
+// Top level variable declarations moved inside init or handled there
+// const menuBtn = document.getElementById('menu-btn');
+// const closeMenuBtn = document.getElementById('close-menu-btn');
+// const sidebarOverlay = document.getElementById('sidebar-overlay');
 
 /**
  * Initialize App
@@ -65,21 +66,35 @@ function init() {
     scratchpad = new Scratchpad('stage-wrapper');
     artBoard = new ArtBoard('art-canvas');
 
-    // Sidebar Navigation
-    menuBtn.addEventListener('click', () => {
-        sidebarOverlay.classList.add('active');
-        sfx.click();
-    });
+    // Sidebar Navigation Logic - Moved inside Init to ensure DOM is ready
+    const menuBtn = document.getElementById('menu-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    const closeMenu = () => {
-        sidebarOverlay.classList.remove('active');
-        sfx.click();
-    };
+    if (menuBtn && sidebarOverlay) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent bubbling
+            sidebarOverlay.classList.remove('hidden'); // Ensure it's not hidden
+            // Force reflow
+            void sidebarOverlay.offsetWidth;
+            sidebarOverlay.classList.add('active');
+            sfx.click();
+            console.log('Menu opened');
+        });
 
-    closeMenuBtn.addEventListener('click', closeMenu);
-    sidebarOverlay.addEventListener('click', (e) => {
-        if (e.target === sidebarOverlay) closeMenu();
-    });
+        const closeMenu = () => {
+            sidebarOverlay.classList.remove('active');
+            setTimeout(() => sidebarOverlay.classList.add('hidden'), 300); // Wait for transition
+            sfx.click();
+        };
+
+        if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+        sidebarOverlay.addEventListener('click', (e) => {
+            if (e.target === sidebarOverlay) closeMenu();
+        });
+    } else {
+        console.error('Menu elements not found!');
+    }
 
     // Main Features
     solveBtn.addEventListener('click', handleSolve);
