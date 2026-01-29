@@ -1,10 +1,10 @@
-/**
- * sw.js
+/* sw.js
  * Service Worker for offline capability.
  * Caches core assets.
  */
 
-const CACHE_NAME = 'math-tutor-v1';
+const APP_VERSION = 'v2'; // Update this to trigger client refresh
+const CACHE_NAME = `math-tutor-${APP_VERSION}`;
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -19,11 +19,7 @@ const ASSETS_TO_CACHE = [
 // Install Event
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
     );
 });
 
@@ -34,6 +30,7 @@ self.addEventListener('activate', (event) => {
             return Promise.all(
                 cacheNames.map((cache) => {
                     if (cache !== CACHE_NAME) {
+                        console.log('Deleting old cache:', cache);
                         return caches.delete(cache);
                     }
                 })
@@ -45,13 +42,13 @@ self.addEventListener('activate', (event) => {
 // Fetch Event - Serve from cache, fall back to network
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
+        caches.match(event.request).then((response) => response || fetch(event.request))
     );
+});
+
+// Listen for SKIP_WAITING message to force update
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
