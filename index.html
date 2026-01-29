@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Step-by-Step Math Tutor</title>
+    <meta name="description"
+        content="A PWA Math Tutor for kids. Learn Multiplication and Division with visual steps and voice narration.">
+    <meta name="theme-color" content="#4a90e2">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>➗</text></svg>">
+</head>
+
+<body>
+
+    <header>
+        <h1>JOHN PAUL SOLAYAO</h1>
+        <button id="install-btn" class="hidden" aria-label="Install App">Install App</button>
+    </header>
+
+    <main>
+        <section id="input-section" class="card">
+            <h2>Let's Learn!</h2>
+            <div class="input-group">
+                <input type="number" id="num-a" placeholder="First Number (A)" min="1" max="20">
+                <select id="operation" aria-label="Choose operation">
+                    <option value="multiply">Multiply (×)</option>
+                    <option value="divide">Divide (÷)</option>
+                </select>
+                <input type="number" id="num-b" placeholder="Second Number (B)" min="1" max="20">
+
+                <div class="voice-control">
+                    <label for="voice-select">Microphone:</label>
+                    <select id="voice-select" aria-label="Choose voice">
+                        <option value="female">👩 Female Voice</option>
+                        <option value="male">👨 Male Voice</option>
+                    </select>
+                </div>
+            </div>
+            <button id="solve-btn" class="primary-btn">Show Me How</button>
+        </section>
+
+        <section id="explanation-section" class="hidden">
+            <div id="narrator-controls">
+                <button id="replay-voice-btn" class="secondary-btn" aria-label="Replay Audio">🔊 Replay</button>
+            </div>
+            <div id="steps-container"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Made for learning • Vanilla JS PWA</p>
+    </footer>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!', reg.scope))
+                    .catch(err => console.error('Service Worker creation failed:', err));
+            });
+        }
+    </script>
+
+    <!-- Main Application Logic -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>

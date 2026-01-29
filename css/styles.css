@@ -1,0 +1,267 @@
+/* CSS Variables for Theming */
+:root {
+    --primary-color: #4a90e2;
+    /* Soft Friendly Blue */
+    --accent-color: #ff6b6b;
+    /* Warm Red/Coral */
+    --bg-color: #f0f4f8;
+    /* Light Blue-Grey Background */
+    --card-bg: #ffffff;
+    /* White Card Background */
+    --text-color: #2c3e50;
+    /* Dark Navy Text */
+    --success-color: #2ecc71;
+    /* Green */
+    --counter-bg: #ffd166;
+    /* Yellow for counters */
+    --border-radius: 12px;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --font-heading: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-body: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    touch-action: manipulation;
+    /* Prevents double-tap zoom */
+    -webkit-tap-highlight-color: transparent;
+    /* Remove tap highlight on mobile */
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+main {
+    flex: 1;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Card Component */
+.card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease;
+}
+
+/* Input Section */
+.input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.voice-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    background: #eef;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+input,
+select {
+    padding: 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    width: 100%;
+    max-width: 200px;
+    transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.primary-btn {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: bold;
+    width: 100%;
+    max-width: 300px;
+    display: block;
+    margin: 0 auto;
+}
+
+.secondary-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Visual Explanations */
+.step-card {
+    background: white;
+    border-left: 5px solid var(--primary-color);
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.step-text {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.visual-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: #fafafa;
+    border-radius: 8px;
+    justify-content: center;
+}
+
+.group-box {
+    border: 2px dashed var(--primary-color);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    background: #fff;
+    min-width: 60px;
+    min-height: 60px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.group-label {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.counter {
+    width: 32px;
+    height: 32px;
+    background-color: var(--counter-bg);
+    border-radius: 50%;
+    border: 2px solid #e1b12c;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    input,
+    select {
+        max-width: 100%;
+    }
+}
