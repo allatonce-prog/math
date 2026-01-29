@@ -190,14 +190,12 @@ function init() {
             inputSection.classList.add('hidden');
             tableSection.classList.remove('hidden');
 
-            if (!activeTableNum) {
-                renderTableButtons();
-                // Optional: Select 1 by default?
-                // activeTableNum = 1; showTableFor(1);
-            } else {
-                renderTableButtons();
-                showTableFor(activeTableNum);
-            }
+            // Force default to 1 if nothing selected
+            if (!activeTableNum) activeTableNum = 1;
+
+            renderTableButtons();
+            showTableFor(activeTableNum);
+
             output.speak("Multiplication Table!");
         });
     }

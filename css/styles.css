@@ -1156,17 +1156,23 @@ footer {
 .table-layout {
     display: flex;
     gap: 15px;
-    height: 400px;
+    height: 60vh;
+    /* Taller fixed height */
+    min-height: 400px;
 }
 
 /* Selector Column */
 .table-sidebar {
-    width: 60px;
+    width: 70px;
+    /* Slightly wider */
     display: flex;
     flex-direction: column;
     gap: 10px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.03);
+    /* Tiny background to show area */
+    border-radius: 10px;
 }
 
 .table-toggle-btn {
