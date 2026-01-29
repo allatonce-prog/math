@@ -37,6 +37,7 @@
             <span class="star-icon">⭐</span>
             <span id="star-count">0</span>
         </div>
+        <button id="music-toggle-btn" class="icon-btn" aria-label="Toggle Music">🎵</button>
         <button id="install-btn" class="hidden" aria-label="Install App">📲 Install</button>
     </header>
 
@@ -69,16 +70,30 @@
                     <span>❓ Quiz Me First!</span>
                 </div>
             </div>
-            <button id="solve-btn" class="primary-btn">Start 🚀</button>
+
+            <div class="action-buttons">
+                <button id="surprise-btn" class="secondary-btn">🎲 Surprise Me!</button>
+                <button id="solve-btn" class="primary-btn">Start 🚀</button>
+            </div>
         </section>
 
         <section id="explanation-section" class="hidden">
-            <div class="progress-container">
-                <div id="progress-bar"></div>
+            <div class="stage-header">
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <!-- Chalkboard Controls -->
+                <div class="tool-controls">
+                    <button id="draw-toggle-btn" class="tool-btn" aria-label="Draw">✏️ Draw</button>
+                    <button id="clear-draw-btn" class="tool-btn hidden" aria-label="Clear">❌</button>
+                </div>
             </div>
 
-            <div id="step-stage">
-                <!-- Content goes here -->
+            <div class="stage-wrapper" id="stage-wrapper">
+                <!-- Canvas will be injected here by Scratchpad class -->
+                <div id="step-stage">
+                    <!-- Content goes here -->
+                </div>
             </div>
 
             <div class="controls-area">

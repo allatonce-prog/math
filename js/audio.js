@@ -51,3 +51,32 @@ export const sfx = {
         });
     }
 };
+
+// --- Ambient Music Sequencer ---
+let musicInterval = null;
+let isMusicPlaying = false;
+let musicNoteIndex = 0;
+// C Major Pentatonic (soft octave)
+const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33];
+
+export const music = {
+    toggle: () => {
+        if (isMusicPlaying) {
+            clearInterval(musicInterval);
+            isMusicPlaying = false;
+            return false;
+        } else {
+            isMusicPlaying = true;
+            music.playNextNote();
+            musicInterval = setInterval(music.playNextNote, 2000); // Slow, ambient pace
+            return true;
+        }
+    },
+    playNextNote: () => {
+        if (ctx.state === 'suspended') ctx.resume();
+        const freq = melody[musicNoteIndex % melody.length];
+        // Very soft sine wave
+        playTone(freq, 'sine', 1.5, 0.02);
+        musicNoteIndex++;
+    }
+};

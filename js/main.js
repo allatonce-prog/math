@@ -7,14 +7,20 @@
 import { generateMultiplicationSteps, generateDivisionSteps, generateAdditionSteps, generateSubtractionSteps } from './mathLogic.js';
 import { output } from './speech.js';
 import * as UI from './ui.js';
-import { sfx } from './audio.js';
+import { sfx, music } from './audio.js';
 import { triggerConfetti } from './confetti.js';
+import { Scratchpad } from './scratchpad.js';
 
 // DOM Elements
 const numAInput = document.getElementById('num-a');
 const numBInput = document.getElementById('num-b');
 const operationSelect = document.getElementById('operation');
 const solveBtn = document.getElementById('solve-btn');
+const surpriseBtn = document.getElementById('surprise-btn');
+const musicBtn = document.getElementById('music-toggle-btn');
+const drawBtn = document.getElementById('draw-toggle-btn');
+const clearDrawBtn = document.getElementById('clear-draw-btn');
+
 const explanationSection = document.getElementById('explanation-section');
 const replayBtn = document.getElementById('replay-voice-btn');
 const nextBtn = document.getElementById('next-btn');
@@ -33,14 +39,42 @@ let deferredPrompt;
 let starCount = 0;
 let currentResult = 0;
 let quizMode = false;
+let scratchpad = null;
 
 /**
  * Initialize App
  */
 function init() {
     loadStars();
+    scratchpad = new Scratchpad('stage-wrapper');
 
     solveBtn.addEventListener('click', handleSolve);
+    surpriseBtn.addEventListener('click', handleSurprise);
+
+    // Music Toggle
+    musicBtn.addEventListener('click', () => {
+        const isPlaying = music.toggle();
+        musicBtn.textContent = isPlaying ? '🔇' : '🎵';
+        musicBtn.ariaLabel = isPlaying ? 'Stop Music' : 'Start Music';
+    });
+
+    // Draw Tools
+    drawBtn.addEventListener('click', () => {
+        const isActive = scratchpad.toggle();
+        drawBtn.classList.toggle('active', isActive);
+        if (isActive) {
+            clearDrawBtn.classList.remove('hidden');
+            output.speak("Draw mode on!");
+        } else {
+            clearDrawBtn.classList.add('hidden');
+        }
+    });
+
+    clearDrawBtn.addEventListener('click', () => {
+        scratchpad.clear();
+        sfx.click();
+    });
+
     replayBtn.addEventListener('click', () => {
         const step = currentSteps[currentIndex];
         output.speak(step.text);
@@ -90,6 +124,38 @@ function updateStarDisplay() {
     // Simple bump animation
     starCountEl.parentElement.style.transform = 'scale(1.2)';
     setTimeout(() => starCountEl.parentElement.style.transform = 'scale(1)', 200);
+}
+
+function handleSurprise() {
+    sfx.click();
+
+    // Pick random operation
+    const ops = ['add', 'subtract', 'multiply', 'divide'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    operationSelect.value = op;
+
+    let a, b;
+
+    // Smart Randomizer based on operation for Kids
+    if (op === 'add') {
+        a = Math.floor(Math.random() * 9) + 1; // 1-9
+        b = Math.floor(Math.random() * 9) + 1;
+    } else if (op === 'subtract') {
+        a = Math.floor(Math.random() * 10) + 5; // 5-15
+        b = Math.floor(Math.random() * (a - 1)) + 1; // Ensure check a > b
+    } else if (op === 'multiply') {
+        a = Math.floor(Math.random() * 5) + 1; // 1-5 (keep small)
+        b = Math.floor(Math.random() * 5) + 1;
+    } else if (op === 'divide') {
+        b = Math.floor(Math.random() * 4) + 2; // 2-5
+        a = b * (Math.floor(Math.random() * 4) + 1); // Ensure clean division
+    }
+
+    numAInput.value = a;
+    numBInput.value = b;
+
+    // Auto start
+    setTimeout(handleSolve, 500);
 }
 
 /**
