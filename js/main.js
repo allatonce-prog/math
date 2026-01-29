@@ -4,7 +4,7 @@
  * Handles state, navigation, and coordination.
  */
 
-import { generateMultiplicationSteps, generateDivisionSteps } from './mathLogic.js';
+import { generateMultiplicationSteps, generateDivisionSteps, generateAdditionSteps, generateSubtractionSteps } from './mathLogic.js';
 import { output } from './speech.js';
 import * as UI from './ui.js';
 
@@ -80,7 +80,15 @@ function handleSolve() {
     // Generate Steps
     let data;
     if (op === 'multiply') data = generateMultiplicationSteps(a, b);
-    else data = generateDivisionSteps(a, b);
+    else if (op === 'divide') data = generateDivisionSteps(a, b);
+    else if (op === 'add') data = generateAdditionSteps(a, b);
+    else if (op === 'subtract') data = generateSubtractionSteps(a, b);
+
+    if (data.result === null) {
+        // Error handling (e.g., divide by zero or negative result)
+        alert(data.steps[0].text);
+        return;
+    }
 
     currentSteps = data.steps;
     currentIndex = 0;

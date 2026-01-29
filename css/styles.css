@@ -439,3 +439,26 @@ footer {
         font-size: 1.8rem;
     }
 }
+/* Sprite Icons */
+.icon-sprite {
+    width: 64px;
+    height: 64px;
+    background-image: url('../assets/sprites.png');
+    background-size: 200% 200%;
+    border-radius: 0;
+    display: inline-block;
+}
+.icon-apple { background-position: 0 0; }
+.icon-duck { background-position: 100% 0; }
+.icon-car { background-position: 0 100%; }
+.icon-cookie { background-position: 100% 100%; }
+
+.pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+.crossed-out { position: relative; opacity: 0.5; filter: grayscale(100%); }
+.crossed-out::after {
+    content: '?';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 3rem; color: red; opacity: 0.8;
+}

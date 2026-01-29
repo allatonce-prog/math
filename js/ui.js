@@ -1,7 +1,6 @@
 /**
  * ui.js
  * Handles DOM manipulation and rendering of visual elements.
- * Separated from main logic to keep things clean.
  */
 
 const stage = document.getElementById('step-stage');
@@ -24,21 +23,30 @@ export function renderStage(stepData) {
 
     // Render Visuals based on type
     if (stepData.type === 'visual_groups') {
-        const visual = renderGroups(stepData.groups, stepData.itemsPerGroup, stepData.icon);
-        card.appendChild(visual);
-    } else if (stepData.type === 'visual_grouping' || stepData.type === 'visual_total') {
-        const visual = renderItems(stepData.total, stepData.groupSize, stepData.type === 'visual_grouping', stepData.icon);
-        card.appendChild(visual);
+        card.appendChild(renderGroups(stepData.groups, stepData.itemsPerGroup, stepData.iconType));
+    } else if (stepData.type === 'visual_total' || stepData.type === 'visual_grouping' || stepData.type === 'result_summary') {
+        const isGrouping = stepData.type === 'visual_grouping';
+        // Handle undefined groupSize gracefully
+        const gSize = stepData.groupSize || 1;
+        card.appendChild(renderItems(stepData.total, gSize, isGrouping, stepData.iconType));
+    } else if (stepData.type === 'visual_add') {
+        card.appendChild(renderAddition(stepData.initial, stepData.added, stepData.iconType));
+    } else if (stepData.type === 'visual_subtract') {
+        card.appendChild(renderSubtraction(stepData.total, stepData.taken, stepData.iconType));
     }
 
     stage.appendChild(card);
 }
 
-/**
- * renderGroups
- * Renders A groups of B items for multiplication
- */
-function renderGroups(numGroups, itemsPerGroup, icon = '') {
+// --- Visual Helpers ---
+
+function createIcon(type) {
+    const div = document.createElement('div');
+    div.className = `icon-sprite icon-${type}`;
+    return div;
+}
+
+function renderGroups(numGroups, itemsPerGroup, iconType) {
     const wrapper = document.createElement('div');
     wrapper.className = 'visual-container';
 
@@ -46,94 +54,118 @@ function renderGroups(numGroups, itemsPerGroup, icon = '') {
         const groupBox = document.createElement('div');
         groupBox.className = 'group-box';
 
-        // Label
         const label = document.createElement('span');
         label.className = 'group-label';
         label.textContent = `Group ${i + 1}`;
         groupBox.appendChild(label);
 
-        // Counters
         for (let j = 0; j < itemsPerGroup; j++) {
-            const counter = document.createElement('div');
-            counter.className = 'counter';
-            counter.textContent = icon; // Set emoji
-            // Stagger animation slightly
-            counter.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
-            groupBox.appendChild(counter);
+            const icon = createIcon(iconType);
+            icon.style.animationDelay = `${(i * 0.1) + (j * 0.05)}s`;
+            // Add pop-in animation
+            icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+            icon.style.animationDelay = `${(j * 0.1)}s`;
+            groupBox.appendChild(icon);
         }
-
         wrapper.appendChild(groupBox);
     }
     return wrapper;
 }
 
-/**
- * renderItems
- * Renders total items, optionally grouped visually for division
- */
-function renderItems(total, groupSize, isGrouping, icon = '') {
+function renderItems(total, groupSize, isGrouping, iconType) {
     const wrapper = document.createElement('div');
     wrapper.className = 'visual-container';
 
     if (isGrouping) {
-        // Group them
         const numGroups = Math.floor(total / groupSize);
-        const remainder = total % groupSize;
+        // We aren't handling remainder visualization fully here for division yet in this new mode, 
+        // but let's stick to the happy path for now or it gets complex.
 
         for (let i = 0; i < numGroups; i++) {
             const groupBox = document.createElement('div');
             groupBox.className = 'group-box';
 
-            // Label
             const label = document.createElement('span');
             label.className = 'group-label';
             label.textContent = `Group ${i + 1}`;
             groupBox.appendChild(label);
 
             for (let j = 0; j < groupSize; j++) {
-                const counter = document.createElement('div');
-                counter.className = 'counter';
-                counter.textContent = icon;
-                groupBox.appendChild(counter);
+                const icon = createIcon(iconType);
+                groupBox.appendChild(icon);
             }
             wrapper.appendChild(groupBox);
         }
-
-        if (remainder > 0) {
-            const remainderBox = document.createElement('div');
-            remainderBox.className = 'group-box';
-            remainderBox.style.borderColor = '#ff6b6b'; // Alert color for remainder
-
-            const label = document.createElement('span');
-            label.className = 'group-label';
-            label.style.background = '#ff6b6b';
-            label.textContent = 'Leftover';
-            remainderBox.appendChild(label);
-
-            for (let k = 0; k < remainder; k++) {
-                const counter = document.createElement('div');
-                counter.className = 'counter';
-                counter.textContent = icon;
-                remainderBox.appendChild(counter);
-            }
-            wrapper.appendChild(remainderBox);
-        }
-
     } else {
-        // Just show all items loosely
         const looseBox = document.createElement('div');
         looseBox.className = 'group-box';
-        looseBox.style.borderStyle = 'none'; // No border for total pile initially
+        looseBox.style.borderStyle = 'none';
+        looseBox.style.boxShadow = 'none';
+        looseBox.style.background = 'transparent';
 
         for (let i = 0; i < total; i++) {
-            const counter = document.createElement('div');
-            counter.className = 'counter';
-            counter.textContent = icon;
-            counter.style.animationDelay = `${i * 0.02}s`;
-            looseBox.appendChild(counter);
+            const icon = createIcon(iconType);
+            icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+            icon.style.animationDelay = `${i * 0.05}s`;
+            looseBox.appendChild(icon);
         }
         wrapper.appendChild(looseBox);
     }
+    return wrapper;
+}
+
+function renderAddition(initial, added, iconType) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'visual-container';
+
+    // Original Pile
+    const box1 = document.createElement('div');
+    box1.className = 'group-box';
+    for (let i = 0; i < initial; i++) {
+        box1.appendChild(createIcon(iconType));
+    }
+    wrapper.appendChild(box1);
+
+    // Operator
+    const op = document.createElement('div');
+    op.textContent = '+';
+    op.style.fontSize = '3rem';
+    op.style.alignSelf = 'center';
+    op.style.color = '#7f8c8d';
+    wrapper.appendChild(op);
+
+    // Added Pile
+    const box2 = document.createElement('div');
+    box2.className = 'group-box';
+    box2.style.borderColor = '#2ecc71'; // Green for adding
+    for (let i = 0; i < added; i++) {
+        const icon = createIcon(iconType);
+        icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+        icon.style.animationDelay = `${i * 0.1}s`;
+        box2.appendChild(icon);
+    }
+    wrapper.appendChild(box2);
+
+    return wrapper;
+}
+
+function renderSubtraction(total, taken, iconType) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'visual-container';
+
+    const box = document.createElement('div');
+    box.className = 'group-box';
+
+    for (let i = 0; i < total; i++) {
+        const icon = createIcon(iconType);
+        // If it's one of the "taken" ones, apply cross-out
+        // We take from the end usually
+        if (i >= total - taken) {
+            icon.classList.add('crossed-out');
+        }
+        box.appendChild(icon);
+    }
+    wrapper.appendChild(box);
 
     return wrapper;
 }
