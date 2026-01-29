@@ -10,6 +10,7 @@ import * as UI from './ui.js';
 import { sfx, music } from './audio.js';
 import { triggerConfetti } from './confetti.js';
 import { Scratchpad } from './scratchpad.js';
+import { ArtBoard } from './artboard.js';
 
 // DOM Elements
 const numAInput = document.getElementById('num-a');
@@ -20,6 +21,16 @@ const surpriseBtn = document.getElementById('surprise-btn');
 const musicBtn = document.getElementById('music-toggle-btn');
 const drawBtn = document.getElementById('draw-toggle-btn');
 const clearDrawBtn = document.getElementById('clear-draw-btn');
+
+// Drawing Page Elements
+const drawPageBtn = document.getElementById('draw-page-btn');
+const drawingSection = document.getElementById('drawing-section');
+const closeDrawBtn = document.getElementById('close-draw-btn');
+const colorPicker = document.getElementById('color-picker');
+const brushSize = document.getElementById('brush-size');
+const eraserBtn = document.getElementById('eraser-btn');
+const clearBoardBtn = document.getElementById('clear-board-btn');
+
 
 const explanationSection = document.getElementById('explanation-section');
 const replayBtn = document.getElementById('replay-voice-btn');
@@ -40,6 +51,7 @@ let starCount = 0;
 let currentResult = 0;
 let quizMode = false;
 let scratchpad = null;
+let artBoard = null;
 
 /**
  * Initialize App
@@ -47,9 +59,35 @@ let scratchpad = null;
 function init() {
     loadStars();
     scratchpad = new Scratchpad('stage-wrapper');
+    artBoard = new ArtBoard('art-canvas');
 
+    // Main Nav
     solveBtn.addEventListener('click', handleSolve);
     surpriseBtn.addEventListener('click', handleSurprise);
+
+    // Drawing Page Navigation
+    drawPageBtn.addEventListener('click', () => {
+        sfx.click();
+        inputSection.classList.add('hidden');
+        drawingSection.classList.remove('hidden');
+        artBoard.resize(); // Fix size on show
+        output.speak("Let's draw!");
+    });
+
+    closeDrawBtn.addEventListener('click', () => {
+        sfx.click();
+        drawingSection.classList.add('hidden');
+        inputSection.classList.remove('hidden');
+    });
+
+    // Drawing Tools
+    colorPicker.addEventListener('input', (e) => artBoard.setColor(e.target.value));
+    brushSize.addEventListener('input', (e) => artBoard.setSize(e.target.value));
+    eraserBtn.addEventListener('click', () => artBoard.setEraser());
+    clearBoardBtn.addEventListener('click', () => {
+        artBoard.clear();
+        sfx.pop();
+    });
 
     // Music Toggle
     musicBtn.addEventListener('click', () => {
