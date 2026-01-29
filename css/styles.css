@@ -953,17 +953,291 @@ footer {
     margin: 1rem 0;
 }
 
+/* Stage Header & Tools */
+.stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.progress-container {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.tool-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tool-btn {
+    background: white;
+    border: 2px solid var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.tool-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Scratchpad Overlay */
+.stage-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.scratchpad {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.scratchpad.hidden {
+    pointer-events: none;
+    display: none;
+}
+
+/* Drawing Controls */
+.drawing-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#color-picker {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+}
+
+#color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+#color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#brush-size {
+    width: 100px;
+}
+
+#art-canvas {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+/* Sidebar Menu */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    /* Ensure it's on top of everything */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    display: flex;
+    /* Always flex, hide with opacity/visibility or separate hidden class */
+    justify-content: flex-start;
+    visibility: hidden;
+    /* Added visibility transition */
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Ensure global .hidden class overrides this if applied */
+.sidebar-overlay.hidden {
+    display: none !important;
+}
+
+.sidebar {
+    background: white;
+    width: 280px;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 5001;
+    overflow-y: auto;
+}
+
+.sidebar-overlay.active .sidebar {
+    transform: translateX(0);
+}
+
+.sidebar h3 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark);
+    font-size: 1.8rem;
+}
+
+.menu-item-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* content left aligned */
+    width: 100%;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+    min-height: 80px;
+    /* Uniform chunky height */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.menu-item-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-controls .menu-item-btn {
+    /* Make secondary controls slightly smaller if desired, or keep same */
+    min-height: 60px;
+    font-size: 1rem;
+}
+
+.divider {
+    height: 2px;
+    background: #f0f0f0;
+    margin: 1rem 0;
+}
+
 .action-buttons {
     display: none;
 }
+
+/* Multiplication Table Split Layout */
+.table-layout {
+    display: flex;
+    gap: 15px;
+    height: 400px;
+}
+
+/* Selector Column */
+.table-sidebar {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.table-toggle-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    box-shadow: 0 4px 0 #dfe6e9;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.table-toggle-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Content List */
+.table-view {
+    flex: 1;
+    background: #f1f2f6;
+    border-radius: 15px;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.table-row-item {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.table-row-item:active {
+    transform: scale(0.98);
+    background: #ffeaa7;
+}
+
+.placeholder-text {
+    text-align: center;
+    margin-top: 50px;
+    color: #b2bec3;
+    font-size: 1.2rem;
+}
+
 /* Multiplication Table Grid */
 .times-grid {
     display: grid;
-    grid-template-columns: repeat(11, minmax(40px, 1fr)); /* 1 header + 10 numbers */
+    grid-template-columns: repeat(11, minmax(40px, 1fr));
+    /* 1 header + 10 numbers */
     gap: 5px;
     width: 100%;
-    min-width: 600px; /* Ensure scroll on small phones */
+    min-width: 600px;
+    /* Ensure scroll on small phones */
 }
+
 .t-cell {
     aspect-ratio: 1;
     display: flex;
@@ -977,23 +1251,27 @@ footer {
     transition: transform 0.1s;
     user-select: none;
 }
+
 .t-cell:hover {
     transform: scale(1.1);
     z-index: 2;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     background: white;
     border: 2px solid var(--primary-color);
 }
+
 .t-header {
     background: var(--primary-color);
     color: white;
     font-size: 1.2rem;
-    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
 }
+
 .t-corner {
     background: transparent;
     font-size: 1.5rem;
 }
+
 .t-cell.highlight {
     background: #ffeaa7;
 }
