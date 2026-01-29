@@ -193,19 +193,34 @@ function goPrev() {
 
 function finishSession() {
     awardStar();
+
+    // Show explicit Victory Card immediately
+    UI.renderStage({
+        text: "Amazing Job! ⭐",
+        type: 'result_summary', // Reuse visual items or just simple text
+        total: 1,
+        iconType: 'star' // We'll need to support this or just ignore visuals for this card
+    });
+
     output.speak("Amazing! You earned a star! Let's do another one.");
+
+    // Disable buttons so they don't click twice
+    nextBtn.disabled = true;
+    prevBtn.disabled = true;
 
     // Wait for celebration then go back
     setTimeout(() => {
         explanationSection.classList.add('hidden');
         inputSection.classList.remove('hidden');
-        inputSection.scrollIntoView({ behavior: 'smooth' });
-
         // Reset state
         numAInput.value = '';
         numBInput.value = '';
         nextBtn.textContent = 'Next ➡️';
-    }, 4000);
+        nextBtn.disabled = false;
+        prevBtn.disabled = false;
+
+        inputSection.scrollIntoView({ behavior: 'smooth' });
+    }, 2500); // Reduced from 4000 to 2500
 }
 
 init();

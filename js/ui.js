@@ -74,13 +74,16 @@ export function renderQuiz(correctAnswer, onCorrect, onWrong) {
         bal.onclick = () => {
             if (ans === correctAnswer) {
                 sfx.correct();
-                sfx.pop();
+                sfx.pop(); // Re-use pop for consistency
                 bal.style.background = '#00b894'; // Green for success
                 bal.textContent = 'Correct!';
+                // Disable all click handlers
+                Array.from(balloonContainer.children).forEach(b => b.onclick = null);
                 setTimeout(onCorrect, 1000);
             } else {
                 sfx.wrong();
                 bal.style.opacity = '0.5';
+                bal.style.transform = 'scale(0.9)';
                 if (onWrong) onWrong();
             }
         };
@@ -95,7 +98,11 @@ export function renderQuiz(correctAnswer, onCorrect, onWrong) {
 
 function createIcon(type) {
     const div = document.createElement('div');
-    div.className = `icon-sprite icon-${type}`;
+    if (type === 'star') {
+        div.className = 'icon-star'; // Use the new CSS class
+    } else {
+        div.className = `icon-sprite icon-${type}`;
+    }
     return div;
 }
 
@@ -119,8 +126,6 @@ function renderGroups(numGroups, itemsPerGroup, iconType) {
             icon.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
             icon.style.animationDelay = `${(j * 0.1)}s`;
             groupBox.appendChild(icon);
-            // Play simplified pop sound for effect handled by main loop timing mostly, 
-            // but we could try sfx here. Let's keep sfx in main for pacing.
         }
         wrapper.appendChild(groupBox);
     }

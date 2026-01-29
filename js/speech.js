@@ -92,6 +92,11 @@ export const output = {
 
         utterance.onend = finish;
         utterance.onerror = (e) => {
+            // Ignore interruption errors (happens when we click Next fast)
+            if (e.error === 'interrupted' || e.error === 'canceled') {
+                finish();
+                return;
+            }
             console.error('TTS Error:', e);
             finish();
         };
