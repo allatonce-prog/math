@@ -652,3 +652,63 @@ footer {
     color: red;
     opacity: 0.8;
 }
+/* Header Controls */
+.icon-btn {
+    background: white;
+    border: none;
+    font-size: 1.5rem;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    margin-left: 10px;
+}
+.icon-btn:active { transform: scale(0.95); }
+
+/* Action Buttons Grid */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+#surprise-btn {
+    flex: 1;
+    background-color: #a29bfe;
+    box-shadow: 0 6px 0 #6c5ce7;
+}
+#solve-btn { flex: 1; margin-top: 0; }
+
+/* Stage Header & Tools */
+.stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.progress-container { flex: 1; margin-bottom: 0; }
+.tool-controls { display: flex; gap: 0.5rem; }
+.tool-btn {
+    background: white;
+    border: 2px solid var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+.tool-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+/* Scratchpad Overlay */
+.stage-wrapper { position: relative; width: 100%; }
+.scratchpad {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10; cursor: crosshair; touch-action: none;
+}
+.scratchpad.hidden { pointer-events: none; display: none; }
