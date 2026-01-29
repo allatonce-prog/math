@@ -56,6 +56,7 @@
             <h3>Menu</h3>
             <button id="draw-page-btn" class="menu-item-btn" style="background: #e84393;">🎨 Free Draw</button>
             <button id="surprise-btn" class="menu-item-btn" style="background: #a29bfe;">🎲 Surprise Me!</button>
+            <button id="table-page-btn" class="menu-item-btn" style="background: #00cec9;">🔢 Times Table</button>
 
             <div class="divider"></div>
 
@@ -116,6 +117,20 @@
             <div class="canvas-container"
                 style="position: relative; height: 400px; background: white; border: 4px dashed #ccc; border-radius: 20px; touch-action: none; overflow: hidden;">
                 <canvas id="art-canvas"></canvas>
+            </div>
+        </section>
+
+        <!-- Multiplication Table Section -->
+        <section id="table-section" class="hidden card" style="max-width: 900px; padding: 10px;">
+            <div class="stage-header">
+                <h2>Times Table 🔢</h2>
+                <button id="close-table-btn" class="tool-btn">🔙 Back</button>
+            </div>
+
+            <div class="table-container" style="overflow-x: auto; padding-bottom: 20px;">
+                <div id="times-table-grid" class="times-grid">
+                    <!-- JS will populate this -->
+                </div>
             </div>
         </section>
 

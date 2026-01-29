@@ -369,6 +369,29 @@ button:active {
 .secondary-btn {
     background-color: var(--primary-color);
     color: white;
+
+    /* Specific Colors only, NO layout properties */
+    #draw-page-btn {
+        background: #e84393;
+    }
+
+    #surprise-btn {
+        background: #a29bfe;
+    }
+
+    #table-page-btn {
+        background: #00cec9;
+    }
+
+    /* Teal */
+    #music-toggle-btn {
+        background: var(--primary-color);
+    }
+
+    #install-btn {
+        background: var(--success-color);
+    }
+
     box-shadow: 0 4px 0 var(--primary-dark);
 }
 
