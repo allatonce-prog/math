@@ -1,16 +1,15 @@
 /**
  * mathLogic.js
  * Core logic for math operations.
- * SUPER BASIC for Grade 1.
- * Short sentences. Simple words.
+ * SUPER SIMPLE for Grade 1.
  */
 
 const THEMES = [
     { name: 'apple', plural: 'apples', icon: '🍎', place: 'basket', placePlural: 'baskets' },
     { name: 'duck', plural: 'ducks', icon: '🦆', place: 'pond', placePlural: 'ponds' },
-    { name: 'car', plural: 'cars', icon: '🚗', place: 'box', placePlural: 'boxes' },
+    { name: 'car', plural: 'cars', icon: '🚗', place: 'garage', placePlural: 'garages' },
     { name: 'cookie', plural: 'cookies', icon: '🍪', place: 'jar', placePlural: 'jars' },
-    { name: 'cat', plural: 'cats', icon: '🐱', place: 'mat', placePlural: 'mats' }
+    { name: 'cat', plural: 'cats', icon: '🐱', place: 'bed', placePlural: 'beds' }
 ];
 
 function getTheme() {
@@ -28,39 +27,49 @@ export function generateMultiplicationSteps(a, b) {
 
     // 1. Intro
     steps.push({
-        text: `Let's multiply ${a} times ${b}.`,
+        text: `Multiplication is putting equal groups together!`,
         type: 'intro'
     });
 
-    // 2. Setup Context
+    // 2. Setup Context - Show Groups
     steps.push({
-        text: `Look! We have ${a} ${t.placePlural}.`,
+        text: `First, look! We have ${a} ${t.placePlural}.`,
         type: 'visual_groups',
         groups: a,
         itemsPerGroup: 0, // Show empty first
         icon: t.icon
     });
 
-    // 3. Add items
+    // 3. Add items explanation
     steps.push({
-        text: `Now, put ${b} ${t.plural} in every ${t.place}.`,
+        text: `We need to put ${b} ${t.plural} inside EACH ${t.place}.`,
+        type: 'visual_groups',
+        groups: a,
+        itemsPerGroup: 0,
+        icon: t.icon
+    });
+
+    // 4. Do it
+    steps.push({
+        text: `Watch! ${b} ${t.plural} go into every ${t.place}.`,
         type: 'visual_groups', // Re-render with items
         groups: a,
         itemsPerGroup: b,
         icon: t.icon
     });
 
-    // 4. Count
+    // 5. Count
     steps.push({
-        text: `Count them with me: 1, 2, ... all the way to ${result}!`,
-        type: 'result',
-        total: result,
+        text: `Now we count them all together!`,
+        type: 'visual_groups',
+        groups: a,
+        itemsPerGroup: b,
         icon: t.icon
     });
 
-    // 5. Final Answer
+    // 6. Final Answer
     steps.push({
-        text: `So, the answer is ${result}. Great job!`,
+        text: `There are ${result} ${t.plural} in total! So, ${a} × ${b} = ${result}.`,
         type: 'result_summary',
         total: result,
         icon: t.icon
@@ -83,13 +92,13 @@ export function generateDivisionSteps(a, b) {
 
     // 1. Intro
     steps.push({
-        text: `Let's divide ${a} by ${b}.`,
+        text: `Division is sharing equally!`,
         type: 'intro'
     });
 
     // 2. Show Pile
     steps.push({
-        text: `Here are ${a} ${t.plural}.`,
+        text: `We start with ${a} ${t.plural}.`,
         type: 'visual_total',
         total: a,
         icon: t.icon
@@ -97,13 +106,15 @@ export function generateDivisionSteps(a, b) {
 
     // 3. Explain Grouping
     steps.push({
-        text: `We need to put ${b} ${t.plural} in each ${t.place}.`,
-        type: 'explanation_only',
+        text: `We want to make groups of ${b}.`,
+        type: 'visual_total',
+        total: a,
+        icon: t.icon
     });
 
     // 4. Do the grouping
     steps.push({
-        text: `Circle groups of ${b}...`,
+        text: `Let's circle ${b} ${t.plural} at a time!`,
         type: 'visual_grouping',
         total: a,
         groupSize: b,
@@ -112,7 +123,7 @@ export function generateDivisionSteps(a, b) {
 
     // 5. Result
     steps.push({
-        text: `See? We filled ${quotient} ${t.placePlural}!`,
+        text: `Count the groups! We made ${quotient} full groups!`,
         type: 'result',
         quotient: quotient,
         icon: t.icon
