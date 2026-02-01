@@ -54,20 +54,30 @@
             <button id="close-menu-btn" class="icon-btn" style="align-self: flex-end; margin-bottom: 2rem;">✖️</button>
 
             <h3>Menu</h3>
+            <div id="streak-container" class="menu-item-btn" style="background: #fab1a0; cursor: default;">
+                🔥 Streak: <span id="streak-count">0</span> Days
+            </div>
+            <button id="home-btn" class="menu-item-btn" style="background: #0984e3;">🏠 Home</button>
+            <button id="daily-btn" class="menu-item-btn" style="background: #ff7675;">📅 Daily Challenge</button>
+            <div class="divider"></div>
             <button id="draw-page-btn" class="menu-item-btn" style="background: #e84393;">🎨 Free Draw</button>
-            <button id="surprise-btn" class="menu-item-btn" style="background: #a29bfe;">🎲 Surprise Me!</button>
             <button id="table-page-btn" class="menu-item-btn" style="background: #00cec9;">🔢 Times Table</button>
+            <button id="quiz-page-btn" class="menu-item-btn" style="background: #fdcb6e;">🧩 Quiz Time</button>
 
             <div class="divider"></div>
 
             <div class="sidebar-controls">
+                <button id="api-key-btn" class="menu-item-btn secondary-btn"
+                    style="background: #2d3436; color: gold;">🔑 Unlock Premium Voice</button>
                 <button id="music-toggle-btn" class="menu-item-btn secondary-btn">🎵 Music: Off</button>
                 <button id="install-btn" class="menu-item-btn hidden check-btn">📲 Install App</button>
             </div>
         </div>
     </div>
 
-    <main>
+    <main id="app-container">
+        <!-- Professor Mascot -->
+        <div id="mascot" class="mascot" aria-label="Professor Owl">🦉</div>
         <section id="input-section" class="card">
             <h2>Let's Learn!</h2>
             <div class="input-group">
@@ -83,8 +93,8 @@
                 <div class="voice-control">
                     <label for="voice-select">Microphone:</label>
                     <select id="voice-select" aria-label="Choose voice">
+                        <option value="female" selected>👩 Teacher (Female)</option>
                         <option value="male">👨 Male Voice</option>
-                        <option value="female">👩 Female Voice</option>
                     </select>
                 </div>
 
@@ -137,6 +147,34 @@
                 <div class="table-view" id="table-view">
                     <p class="placeholder-text">Tap a number to see its table!</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- Situational Quiz Section -->
+        <section id="quiz-section" class="hidden card" style="max-width: 700px;">
+            <div class="stage-header">
+                <h2>Quiz Time! 🧩</h2>
+                <button id="close-quiz-btn" class="tool-btn">🔙 Back</button>
+            </div>
+
+            <div id="quiz-container" class="quiz-container">
+                <div id="quiz-text" class="question-text">Loading question...</div>
+                <div id="quiz-icon-display" class="quiz-icon-bounce"></div>
+
+                <!-- Voice Answer -->
+                <div class="voice-answer-container" style="text-align: center; margin-bottom: 20px;">
+                    <button id="quiz-mic-btn" class="mic-btn">
+                        🎤 Tap to Speak Answer
+                    </button>
+                    <p id="mic-status" class="hidden" style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        Listening...</p>
+                </div>
+
+                <div id="quiz-options" class="quiz-options-grid">
+                    <!-- Options go here -->
+                </div>
+                <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+                <button id="next-quiz-btn" class="primary-btn hidden">Next Question ➡️</button>
             </div>
         </section>
 

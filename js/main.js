@@ -38,7 +38,7 @@ const menuBtn = document.getElementById('menu-btn');
 const closeMenuBtn = document.getElementById('close-menu-btn');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 const drawPageBtn = document.getElementById('draw-page-btn');
-const surpriseBtn = document.getElementById('surprise-btn');
+
 const tablePageBtn = document.getElementById('table-page-btn');
 const musicBtn = document.getElementById('music-toggle-btn');
 
@@ -109,10 +109,7 @@ function init() {
 
     solveBtn.addEventListener('click', handleSolve);
 
-    surpriseBtn.addEventListener('click', () => {
-        closeMenu();
-        handleSurprise();
-    });
+
 
     drawPageBtn.addEventListener('click', () => {
         closeMenu();
@@ -208,8 +205,353 @@ function init() {
         });
     }
 
+    // --- Situational Quiz Logic ---
+    const quizPageBtn = document.getElementById('quiz-page-btn');
+    const homeBtn = document.getElementById('home-btn');
+    const quizSection = document.getElementById('quiz-section');
+    const closeQuizBtn = document.getElementById('close-quiz-btn');
+    const nextQuizBtn = document.getElementById('next-quiz-btn');
+
+    let currentQuizData = null;
+
+    if (homeBtn) {
+        homeBtn.addEventListener('click', () => {
+            closeMenu();
+            // Reset Views
+            quizSection.classList.add('hidden');
+            drawingSection.classList.add('hidden');
+            tableSection.classList.add('hidden');
+            explanationSection.classList.add('hidden');
+
+            // Show Home
+            inputSection.classList.remove('hidden');
+            output.speak("Welcome back!");
+
+            // Optional: Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    if (quizPageBtn) {
+        quizPageBtn.addEventListener('click', () => {
+            closeMenu();
+            inputSection.classList.add('hidden');
+            quizSection.classList.remove('hidden');
+            loadNewQuiz();
+            output.speak("Quiz Time! Listen carefully.");
+        });
+    }
+
+    if (closeQuizBtn) {
+        closeQuizBtn.addEventListener('click', () => {
+            sfx.click();
+            quizSection.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+            output.stop();
+        });
+    }
+
+    if (nextQuizBtn) {
+        nextQuizBtn.addEventListener('click', () => {
+            sfx.click();
+            loadNewQuiz();
+        });
+    }
+
+    // --- Daily Challenge State & Logic ---
+    let dailyStreak = parseInt(localStorage.getItem('math_daily_streak') || '0');
+    let lastDailyDate = localStorage.getItem('math_last_daily_date') || '';
+    let isDailyMode = false;
+    let dailyQuestionCount = 0; // 0 to 5
+
+    function initDailyChallenge() {
+        const today = new Date().toDateString();
+        const dailyBtn = document.getElementById('daily-btn');
+        const streakCountEl = document.getElementById('streak-count');
+
+        // Update UI
+        if (streakCountEl) streakCountEl.textContent = dailyStreak;
+
+        if (dailyBtn) {
+            // Check if already done today
+            if (lastDailyDate === today) {
+                dailyBtn.textContent = "✅ Daily Done!";
+                dailyBtn.style.opacity = '0.7';
+                dailyBtn.disabled = true;
+            } else {
+                dailyBtn.textContent = "📅 Daily Challenge";
+                dailyBtn.disabled = false;
+            }
+
+            // Clean old listeners to prevent dupes if any (though init runs once)
+            const newBtn = dailyBtn.cloneNode(true);
+            dailyBtn.parentNode.replaceChild(newBtn, dailyBtn);
+
+            newBtn.addEventListener('click', () => {
+                if (newBtn.textContent.includes('Done')) return;
+                closeMenu();
+                startDailyChallenge(newBtn);
+            });
+        }
+    }
+
+    function startDailyChallenge(btnElement) {
+        isDailyMode = true;
+        dailyQuestionCount = 0;
+        inputSection.classList.add('hidden');
+        quizSection.classList.remove('hidden');
+        output.speak("Daily Challenge! Answer 5 questions to keep your streak!");
+
+        if (btnElement) btnElement.textContent = `📅 Daily (0/5)`;
+
+        loadNewQuiz();
+    }
+
+    // --- Voice Recognition Setup ---
+    const quizMicBtn = document.getElementById('quiz-mic-btn');
+    const micStatus = document.getElementById('mic-status');
+
+    if (quizMicBtn) {
+        import('./voiceInput.js').then(mod => {
+            const voice = mod.voiceInput;
+
+            quizMicBtn.addEventListener('click', () => {
+                sfx.click();
+                if (quizMicBtn.classList.contains('listening')) {
+                    voice.stop();
+                    return;
+                }
+
+                micStatus.textContent = "Listening... Say the answer!";
+                micStatus.classList.remove('hidden');
+                quizMicBtn.classList.add('listening');
+                quizMicBtn.textContent = "🛑 Stop Listening";
+
+                // Pause TTS so it doesn't listen to itself
+                output.stop();
+
+                voice.start(
+                    (text, number) => {
+                        // On Result
+                        console.log("Heard:", text, number);
+                        micStatus.textContent = `Heard: "${text}"`;
+
+                        if (number === currentQuizData.correct) {
+                            // Correct!
+                            // Find the correct button to pass visual feedback
+                            const buttons = Array.from(document.querySelectorAll('.quiz-option-btn'));
+                            const correctBtn = buttons.find(b => parseInt(b.textContent) === number);
+
+                            checkQuizAnswer(number, correctBtn || quizMicBtn, currentQuizData.correct);
+
+                            voice.stop();
+                        } else {
+                            // Wrong
+                            micStatus.textContent = `Heard: "${text}". Try again!`;
+                            micStatus.style.color = '#d63031';
+                            setTimeout(() => {
+                                micStatus.style.color = '#666';
+                                // Don't stop listening immediately? 
+                                // Actually better to stop and let them try again to avoid loop
+                                voice.stop();
+                            }, 1500);
+                        }
+                    },
+                    (error) => {
+                        // On Error
+                        micStatus.textContent = "Didn't catch that. Tap to try again.";
+                        voice.stop();
+                    },
+                    () => {
+                        // On End
+                        quizMicBtn.classList.remove('listening');
+                        quizMicBtn.textContent = "🎤 Tap to Speak Answer";
+                        // micStatus.classList.add('hidden'); // Keep result visible for a moment
+                    }
+                );
+            });
+        });
+    }
+
+    function loadNewQuiz() {
+        import('./quizLogic.js').then(module => {
+            const data = module.generateSituationalQuestion();
+            currentQuizData = data;
+
+            // Render
+            const qText = document.getElementById('quiz-text');
+            const qIconDisplay = document.getElementById('quiz-icon-display');
+            const qOptions = document.getElementById('quiz-options');
+            const qFeedback = document.getElementById('quiz-feedback');
+
+            // Header for Daily Mode
+            if (isDailyMode) {
+                qText.style.color = "#d35400";
+                qText.textContent = `[Daily ${dailyQuestionCount + 1}/5] ${data.text}`;
+            } else {
+                qText.style.color = "#2d3436";
+                qText.textContent = data.text;
+            }
+
+            // VISUAL ENHANCEMENT: Show multiple icons to match the story
+            qIconDisplay.innerHTML = '';
+            qIconDisplay.className = 'quiz-visual-group'; // We will style this new class
+
+            // Show up to 10 icons as a hint/visual
+            // If answer is small, show answer count? Or show the 'a' or 'b' variable?
+            // Let's safe bet: show up to 10 of the question's object icon
+            const showCount = Math.min(data.correct, 10);
+
+            for (let i = 0; i < showCount; i++) {
+                const s = document.createElement('span');
+                s.textContent = data.icon;
+                s.style.fontSize = '3rem';
+                s.style.margin = '5px';
+                s.style.display = 'inline-block';
+                s.style.animation = `popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
+                s.style.animationDelay = `${i * 0.1}s`;
+                qIconDisplay.appendChild(s);
+            }
+
+            if (data.correct > 10) {
+                const plus = document.createElement('span');
+                plus.textContent = '...';
+                plus.style.fontSize = '2rem';
+                plus.style.verticalAlign = 'middle';
+                qIconDisplay.appendChild(plus);
+            }
+
+            // Speak the question
+            output.speak(data.text);
+
+            // Reset UI
+            qOptions.innerHTML = '';
+            qFeedback.textContent = '';
+            qFeedback.className = 'quiz-feedback hidden';
+            nextQuizBtn.classList.add('hidden');
+
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkQuizAnswer(opt, btn, data.correct);
+                qOptions.appendChild(btn);
+            });
+        });
+    }
+
+    function checkQuizAnswer(selected, btnElement, correct) {
+        const qFeedback = document.getElementById('quiz-feedback');
+        const allBtns = document.querySelectorAll('.quiz-option-btn');
+
+        if (selected === correct) {
+            // Correct
+            sfx.correct();
+            btnElement.classList.add('correct');
+            triggerConfetti();
+            output.speak("Excellent! That is correct!");
+
+            qFeedback.textContent = "Correct! 🎉";
+            qFeedback.classList.remove('hidden');
+
+            allBtns.forEach(b => b.disabled = true);
+            awardStar(); // Bonus star!
+
+            // DAILY MODE LOGIC
+            if (isDailyMode) {
+                dailyQuestionCount++;
+                if (dailyBtn) dailyBtn.textContent = `📅 Daily (${dailyQuestionCount}/5)`;
+
+                if (dailyQuestionCount >= 5) {
+                    completeDailyChallenge();
+                    return; // Don't show next button, we are done
+                }
+            }
+
+            nextQuizBtn.classList.remove('hidden');
+
+        } else {
+            // Wrong
+            sfx.wrong();
+            btnElement.classList.add('wrong');
+            output.speak("Oops, try again!");
+            btnElement.disabled = true;
+        }
+    }
+
+    function completeDailyChallenge() {
+        sfx.win();
+        output.speak("Challenge Complete! You extended your streak!");
+
+        // Update Stats
+        dailyStreak++;
+        localStorage.setItem('math_daily_streak', dailyStreak);
+        if (streakCountEl) streakCountEl.textContent = dailyStreak;
+
+        lastDailyDate = new Date().toDateString();
+        localStorage.setItem('math_last_daily_date', lastDailyDate);
+
+        if (dailyBtn) {
+            dailyBtn.textContent = "✅ Daily Done!";
+            dailyBtn.disabled = true;
+        }
+
+        isDailyMode = false; // Reset mode
+
+        // Huge Confetti
+        triggerConfetti();
+        setTimeout(triggerConfetti, 500);
+        setTimeout(triggerConfetti, 1000);
+
+        // Show completion message
+        const qText = document.getElementById('quiz-text');
+        qText.innerHTML = `🎉 <span style="color:#e84393; font-size: 2.5rem;">DAY ${dailyStreak} COMPLETE!</span> 🎉<br>See you tomorrow!`;
+
+        document.getElementById('quiz-options').innerHTML = '';
+        nextQuizBtn.classList.add('hidden');
+
+        // Create a 'Finish' button to go back
+        const finishBtn = document.createElement('button');
+        finishBtn.className = 'action-btn';
+        finishBtn.textContent = "Back to Menu";
+        finishBtn.style.background = "#6c5ce7";
+        finishBtn.style.marginTop = "20px";
+        finishBtn.onclick = () => {
+            inputSection.classList.remove('hidden');
+            quizSection.classList.add('hidden');
+            finishBtn.remove();
+        };
+        document.getElementById('quiz-options').appendChild(finishBtn);
+    }
+
 
     // --- Other Controls ---
+
+    const apiKeyBtn = document.getElementById('api-key-btn');
+    if (apiKeyBtn) {
+        import('./openai_tts.js').then(module => {
+            apiKeyBtn.addEventListener('click', () => {
+                const currentKey = module.openAITTS.getKey();
+                const newKey = prompt("Enter your OpenAI API Key for premium voices:\n(Leave empty to use free voices)", currentKey);
+                if (newKey !== null) {
+                    module.openAITTS.setKey(newKey.trim());
+                    if (newKey.trim()) {
+                        output.speak("Hello! I am your new premium teacher.");
+                        apiKeyBtn.textContent = "🔑 Premium Voice Active";
+                        apiKeyBtn.style.color = "#00b894";
+                    } else {
+                        apiKeyBtn.textContent = "🔑 Unlock Premium Voice";
+                        apiKeyBtn.style.color = "gold";
+                    }
+                }
+            });
+            // Update initial state
+            if (module.openAITTS.getKey()) {
+                apiKeyBtn.textContent = "🔑 Premium Voice Active";
+                apiKeyBtn.style.color = "#00b894";
+            }
+        });
+    }
 
     musicBtn.addEventListener('click', () => {
         const isPlaying = music.toggle();
@@ -276,6 +618,8 @@ function init() {
         if (outcome === 'accepted') installBtn.classList.add('hidden');
         deferredPrompt = null;
     });
+
+    initDailyChallenge();
 }
 
 function loadStars() {
@@ -299,37 +643,7 @@ function updateStarDisplay() {
     setTimeout(() => starCountEl.parentElement.style.transform = 'scale(1)', 200);
 }
 
-function handleSurprise() {
-    sfx.click();
 
-    // Pick random operation
-    const ops = ['add', 'subtract', 'multiply', 'divide'];
-    const op = ops[Math.floor(Math.random() * ops.length)];
-    operationSelect.value = op;
-
-    let a, b;
-
-    // Smart Randomizer based on operation for Kids
-    if (op === 'add') {
-        a = Math.floor(Math.random() * 9) + 1; // 1-9
-        b = Math.floor(Math.random() * 9) + 1;
-    } else if (op === 'subtract') {
-        a = Math.floor(Math.random() * 10) + 5; // 5-15
-        b = Math.floor(Math.random() * (a - 1)) + 1; // Ensure check a > b
-    } else if (op === 'multiply') {
-        a = Math.floor(Math.random() * 5) + 1; // 1-5 (keep small)
-        b = Math.floor(Math.random() * 5) + 1;
-    } else if (op === 'divide') {
-        b = Math.floor(Math.random() * 4) + 2; // 2-5
-        a = b * (Math.floor(Math.random() * 4) + 1); // Ensure clean division
-    }
-
-    numAInput.value = a;
-    numBInput.value = b;
-
-    // Auto start
-    setTimeout(handleSolve, 500);
-}
 
 /**
  * Start the Learning Session
